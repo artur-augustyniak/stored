@@ -10,11 +10,10 @@ config.status
 # configure
 Makefile
 config.h
-doc/Makefile
-examples/Makefile
-man/Makefile
-scripts/Makefile
 src/.deps/
-src/Makefile
 stamp-h1
 
+#make
+storectl
+stored
+*.o
