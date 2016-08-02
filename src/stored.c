@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <syslog.h>
+#include "comm.h"
 
 static const char NAME[] = "stored";
 /**
