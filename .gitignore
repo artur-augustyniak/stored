@@ -1,6 +1,20 @@
 .idea
+
+# automake
 autoscan.log
 configure.scan
 autom4te.cache
 config.log
 config.status
+
+# configure
+Makefile
+config.h
+doc/Makefile
+examples/Makefile
+man/Makefile
+scripts/Makefile
+src/.deps/
+src/Makefile
+stamp-h1
+
