@@ -4,3 +4,8 @@ configure.scan
 autom4te.cache
 config.log
 config.status
+aclocal.m4
+compile
+depcomp
+install-sh
+missing

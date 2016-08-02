@@ -3,6 +3,7 @@
 
 AC_PREREQ([2.69])
 AC_INIT([stored], [0.1], [artur@aaugustyniak.pl])
+AM_INIT_AUTOMAKE(stored, 0.1)
 AC_CONFIG_SRCDIR([src/comm.h])
 AC_CONFIG_HEADERS([config.h])
 
@@ -22,4 +23,5 @@ AC_TYPE_UINT64_T
 AC_FUNC_FORK
 AC_CHECK_FUNCS([memset strerror])
 
-AC_OUTPUT
+#AC_OUTPUT
+AC_OUTPUT(Makefile src/Makefile doc/Makefile examples/Makefile man/Makefile scripts/Makefile)
