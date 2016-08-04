@@ -93,7 +93,8 @@ PROGRAMS = $(bin_PROGRAMS)
 am_storectl_OBJECTS = storectl.$(OBJEXT)
 storectl_OBJECTS = $(am_storectl_OBJECTS)
 storectl_LDADD = $(LDADD)
-am_stored_OBJECTS = stored.$(OBJEXT)
+am_stored_OBJECTS = stored.$(OBJEXT) mtab_check.$(OBJEXT) \
+	mtab_check_trigger.$(OBJEXT)
 stored_OBJECTS = $(am_stored_OBJECTS)
 stored_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -240,7 +241,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-stored_SOURCES = stored.c comm.h
+stored_SOURCES = stored.c mtab_check.h mtab_check.c mtab_check_trigger.h mtab_check_trigger.c
 storectl_SOURCES = storectl.c
 all: all-am
 
@@ -333,6 +334,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mtab_check.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mtab_check_trigger.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/storectl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stored.Po@am__quote@
 
