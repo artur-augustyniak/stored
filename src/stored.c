@@ -73,15 +73,9 @@ int main()
 {
     skeleton_daemon();
     syslog (LOG_NOTICE, "First daemon started.");
-    while (1)
-    {
-        trigger_check(&check);
-        syslog (LOG_NOTICE, "mount check triggered");
-        //break;
-    }
+    trigger_check(&check);
     syslog (LOG_NOTICE, "First daemon terminated.");
     closelog();
-
     return EXIT_SUCCESS;
 }
 
