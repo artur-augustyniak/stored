@@ -76,7 +76,7 @@ int main()
     while (1)
     {
         trigger_check(&check);
-        syslog (LOG_NOTICE, "mount check triggered);
+        syslog (LOG_NOTICE, "mount check triggered");
         //break;
     }
     syslog (LOG_NOTICE, "First daemon terminated.");

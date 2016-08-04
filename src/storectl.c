@@ -1,7 +1,8 @@
 /* vim: set tabstop=2 expandtab: */
 #include<stdio.h>
 
-void main(void)
+int  main(void)
 {
- printf("blah");             
+ printf("blah");
+ return 0;
 }
