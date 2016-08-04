@@ -1,3 +1,5 @@
+/* vim: set tabstop=2 expandtab: */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -5,7 +7,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <syslog.h>
-#include "comm.h"
+
+#include "mtab_check_trigger.h"
+#include "mtab_check.h"
 
 static const char NAME[] = "stored";
 /**
@@ -71,12 +75,10 @@ int main()
     syslog (LOG_NOTICE, "First daemon started.");
     while (1)
     {
-        //TODO: Insert daemon code here.
-        syslog (LOG_NOTICE, "daemon working");
-        sleep (4);
+        trigger_check(&check);
+        syslog (LOG_NOTICE, "mount check triggered);
         //break;
     }
-
     syslog (LOG_NOTICE, "First daemon terminated.");
     closelog();
 
