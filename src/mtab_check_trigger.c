@@ -36,13 +36,6 @@ void trigger_check(void (*f)(void))
 
         while (-1!=poll(&pfd, 1, AUTO_CHECK_INTERVAL)) {
                 f();
-                int i, len = recv(pfd.fd, buf, sizeof(buf), MSG_DONTWAIT);
-                if (len == -1) {
-                    i = 0;
-                }
-                while (i<len) {
-                    syslog (LOG_NOTICE, "%s", buf+i);
-                    i += strlen(buf+i)+1;
-                }
+                recv(pfd.fd, buf, sizeof(buf), MSG_DONTWAIT);
         }
 }

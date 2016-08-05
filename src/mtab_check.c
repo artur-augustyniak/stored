@@ -14,9 +14,7 @@ void check(void)
     }
     M_TAB* mt;
     while((mt = getmntent(mtabf))){
-        //printf("########## MOUNT MTAB: \n");
-        //printf("device:      \t%s\n", mt->mnt_fsname);
-        syslog (LOG_NOTICE, "mount point - %s", mt->mnt_dir);
+        syslog (LOG_NOTICE, "device: %s - mount point: %s", mt->mnt_fsname,  mt->mnt_dir);
     }
     syslog (LOG_NOTICE, "mount check triggered");
     if( 0 == endmntent(mtabf)){
