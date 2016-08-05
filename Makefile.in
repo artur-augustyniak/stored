@@ -78,9 +78,10 @@ POST_UNINSTALL = :
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
-	$(srcdir)/config.h.in config/compile config/depcomp \
-	config/install-sh config/missing $(top_srcdir)/config/compile \
-	$(top_srcdir)/config/install-sh $(top_srcdir)/config/missing
+	$(top_srcdir)/config/config.h.in $(srcdir)/config.h.in \
+	config/compile config/depcomp config/install-sh config/missing \
+	$(top_srcdir)/config/compile $(top_srcdir)/config/install-sh \
+	$(top_srcdir)/config/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -88,7 +89,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = config.h
+CONFIG_HEADER = $(top_builddir)/config/config.h config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
@@ -315,20 +316,28 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
 
-config.h: stamp-h1
-	@test -f $@ || rm -f stamp-h1
-	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) stamp-h1
+config/config.h: config/stamp-h1
+	@test -f $@ || rm -f config/stamp-h1
+	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) config/stamp-h1
 
-stamp-h1: $(srcdir)/config.h.in $(top_builddir)/config.status
-	@rm -f stamp-h1
-	cd $(top_builddir) && $(SHELL) ./config.status config.h
-$(srcdir)/config.h.in:  $(am__configure_deps) 
+config/stamp-h1: $(top_srcdir)/config/config.h.in $(top_builddir)/config.status
+	@rm -f config/stamp-h1
+	cd $(top_builddir) && $(SHELL) ./config.status config/config.h
+$(top_srcdir)/config/config.h.in:  $(am__configure_deps) 
 	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
-	rm -f stamp-h1
+	rm -f config/stamp-h1
 	touch $@
 
+config.h: stamp-h2
+	@test -f $@ || rm -f stamp-h2
+	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) stamp-h2
+
+stamp-h2: $(srcdir)/config.h.in $(top_builddir)/config.status
+	@rm -f stamp-h2
+	cd $(top_builddir) && $(SHELL) ./config.status config.h
+
 distclean-hdr:
-	-rm -f config.h stamp-h1
+	-rm -f config/config.h config/stamp-h1 config.h stamp-h2
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.
