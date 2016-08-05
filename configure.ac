@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.69])
 AC_INIT([stored], [0.1], [artur@aaugustyniak.pl])
-AC_CONFIG_SRCDIR([src])
+AC_CONFIG_SRCDIR([src/stored.c])
 AC_CONFIG_AUX_DIR([config])
 AM_INIT_AUTOMAKE([foreign])
 
