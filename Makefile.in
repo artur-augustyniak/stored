@@ -78,10 +78,11 @@ POST_UNINSTALL = :
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
-	$(top_srcdir)/config/config.h.in $(srcdir)/config.h.in \
-	config/compile config/depcomp config/install-sh config/missing \
-	$(top_srcdir)/config/compile $(top_srcdir)/config/install-sh \
-	$(top_srcdir)/config/missing
+	$(top_srcdir)/./config/config.h.in ./config/compile \
+	./config/depcomp ./config/install-sh ./config/missing \
+	$(top_srcdir)/./config/compile \
+	$(top_srcdir)/./config/install-sh \
+	$(top_srcdir)/./config/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -89,7 +90,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/config/config.h config.h
+CONFIG_HEADER = $(top_builddir)/./config/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
@@ -127,8 +128,7 @@ am__recursive_targets = \
   $(am__extra_recursive_targets)
 AM_RECURSIVE_TARGETS = $(am__recursive_targets:-recursive=) TAGS CTAGS \
 	cscope distdir dist dist-all distcheck
-am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) \
-	$(LISP)config.h.in
+am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
 # *not* preserved.
@@ -277,8 +277,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS = src doc examples man scripts
-all: config.h
-	$(MAKE) $(AM_MAKEFLAGS) all-recursive
+all: all-recursive
 
 .SUFFIXES:
 am--refresh: Makefile
@@ -316,28 +315,20 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
 
-config/config.h: config/stamp-h1
-	@test -f $@ || rm -f config/stamp-h1
-	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) config/stamp-h1
+./config/config.h: ./config/stamp-h1
+	@test -f $@ || rm -f ./config/stamp-h1
+	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) ./config/stamp-h1
 
-config/stamp-h1: $(top_srcdir)/config/config.h.in $(top_builddir)/config.status
-	@rm -f config/stamp-h1
-	cd $(top_builddir) && $(SHELL) ./config.status config/config.h
-$(top_srcdir)/config/config.h.in:  $(am__configure_deps) 
+./config/stamp-h1: $(top_srcdir)/./config/config.h.in $(top_builddir)/config.status
+	@rm -f ./config/stamp-h1
+	cd $(top_builddir) && $(SHELL) ./config.status ./config/config.h
+$(top_srcdir)/./config/config.h.in:  $(am__configure_deps) 
 	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
-	rm -f config/stamp-h1
+	rm -f ./config/stamp-h1
 	touch $@
 
-config.h: stamp-h2
-	@test -f $@ || rm -f stamp-h2
-	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) stamp-h2
-
-stamp-h2: $(srcdir)/config.h.in $(top_builddir)/config.status
-	@rm -f stamp-h2
-	cd $(top_builddir) && $(SHELL) ./config.status config.h
-
 distclean-hdr:
-	-rm -f config/config.h config/stamp-h1 config.h stamp-h2
+	-rm -f ./config/config.h ./config/stamp-h1
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.
@@ -635,7 +626,7 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-recursive
-all-am: Makefile config.h
+all-am: Makefile
 installdirs: installdirs-recursive
 installdirs-am:
 install: install-recursive
@@ -737,7 +728,7 @@ ps-am:
 
 uninstall-am:
 
-.MAKE: $(am__recursive_targets) all install-am install-strip
+.MAKE: $(am__recursive_targets) install-am install-strip
 
 .PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am \
 	am--refresh check check-am clean clean-cscope clean-generic \
