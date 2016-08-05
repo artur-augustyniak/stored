@@ -1,5 +1,9 @@
 /* ./config/config.h.in.  Generated from configure.ac by autoheader.  */
 
+
+
+#define DAEMON
+
 /* Name of package */
 #undef PACKAGE
 

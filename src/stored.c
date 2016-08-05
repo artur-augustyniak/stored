@@ -1,5 +1,5 @@
 /* vim: set tabstop=2 expandtab: */
-
+#include "../config/config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -17,6 +17,7 @@ static const char NAME[] = "stored";
 */
 static void skeleton_daemon()
 {
+#ifdef DAEMON
     pid_t pid;
 
     /* Fork off the parent process */
@@ -52,7 +53,6 @@ static void skeleton_daemon()
 
     /* Set new file permissions */
     umask(0);
-
     /* Change the working directory to the root directory */
     /* or another appropriated directory */
     chdir("/tmp");
@@ -63,9 +63,14 @@ static void skeleton_daemon()
     {
         close(x);
     }
-
+#else
+    printf("Debug mode\n");
+#endif
     /* Open the log file */
     openlog (NAME, LOG_PID, LOG_DAEMON);
+
+
+
 }
 
 
