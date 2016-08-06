@@ -8,7 +8,7 @@ AC_CONFIG_HEADER([./config/config.h])
 # AC_CONFIG_HEADERS([./config/config.h])
 AC_CONFIG_AUX_DIR([./config])
 AM_INIT_AUTOMAKE([foreign])
-
+AM_MAINTAINER_MODE([disable])
 
 
 
