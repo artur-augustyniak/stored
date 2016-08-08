@@ -1,5 +1,5 @@
 /* vim: set tabstop=2 expandtab: */
-#include <config/config.h>
+#include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

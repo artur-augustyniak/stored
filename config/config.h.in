@@ -23,3 +23,5 @@
 
 /* Version number of package */
 #undef VERSION
+
+#include <custom_config.h>
