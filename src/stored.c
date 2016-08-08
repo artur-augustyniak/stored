@@ -17,7 +17,7 @@ static const char NAME[] = "stored";
 */
 static void skeleton_daemon()
 {
-#ifdef DAEMON
+#ifdef IS_DAEMON
     pid_t pid;
 
     /* Fork off the parent process */
