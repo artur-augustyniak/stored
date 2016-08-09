@@ -6,15 +6,13 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <syslog.h>
-
+#include "util/logger.h"
 #include "mtab_check_trigger.h"
 #include "mtab_check.h"
 
+
 static const char NAME[] = "stored";
-/**
-* gcc -Wall -pedantic -std=c99 stored.c
-*/
+
 static void skeleton_daemon()
 {
 #ifdef IS_DAEMON
@@ -63,24 +61,24 @@ static void skeleton_daemon()
     {
         close(x);
     }
-#else
-    printf("Debug mode\n");
-#endif
     /* Open the log file */
-    openlog (NAME, LOG_PID, LOG_DAEMON);
-
-
-
+    open_log(NAME);
+#else
+    put_notice("Debug mode.");
+#endif
 }
 
 
 int main()
 {
     skeleton_daemon();
-    syslog (LOG_NOTICE, "First daemon started.");
+    put_notice("First daemon started.");
     trigger_check(&check);
-    syslog (LOG_NOTICE, "First daemon terminated.");
-    closelog();
+    put_notice("First daemon terminated.");
+
+#ifdef IS_DAEMON
+    close_log();
+#endif
+
     return EXIT_SUCCESS;
 }
-

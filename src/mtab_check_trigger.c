@@ -1,3 +1,4 @@
+#include <config.h>
 #include "mtab_check_trigger.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,7 +11,6 @@
 #include <linux/netlink.h>
 #include <syslog.h>
 
-#define AUTO_CHECK_INTERVAL 60000
 
 void trigger_check(void (*f)(void))
 {
@@ -30,7 +30,6 @@ void trigger_check(void (*f)(void))
         // Listen to netlink socket
         if (bind(pfd.fd, (void *)&nls, sizeof(struct sockaddr_nl)))
         {
-            perror("Bind failed");
             syslog (LOG_ERR, "%s", "Bind failed");
         }
 
