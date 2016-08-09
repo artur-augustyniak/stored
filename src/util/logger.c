@@ -22,3 +22,7 @@ void put_notice(char* msg)
     printf("DEBUG syslog msg. PRIO: %i. MSG: %s\n", LOG_NOTICE, msg);
 #endif
 }
+
+void put_error(char* msg){
+    put_notice(msg);
+}

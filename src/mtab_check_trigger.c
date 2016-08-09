@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <linux/types.h>
 #include <linux/netlink.h>
-#include <syslog.h>
+#include "util/logger.h"
 
 
 void trigger_check(void (*f)(void))
@@ -30,7 +30,7 @@ void trigger_check(void (*f)(void))
         // Listen to netlink socket
         if (bind(pfd.fd, (void *)&nls, sizeof(struct sockaddr_nl)))
         {
-            syslog (LOG_ERR, "%s", "Bind failed");
+            put_error("Bind failed");
         }
 
         while (-1!=poll(&pfd, 1, AUTO_CHECK_INTERVAL)) {
