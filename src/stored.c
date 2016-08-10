@@ -68,12 +68,19 @@ static void skeleton_daemon()
 #endif
 }
 
+void sigint_handler(int sig) {
+	break_checks_loop();
+}
 
 int main()
 {
+    signal(SIGINT, &sigint_handler);
+    atexit(&destroy_mtab);
     skeleton_daemon();
     put_notice("First daemon started.");
-    trigger_check(&check);
+    init_checks_loop();
+    init_mtab();
+    checks_loop(&check_mtab);
     put_notice("First daemon terminated.");
 
 #ifdef IS_DAEMON
