@@ -94,7 +94,8 @@ am_storectl_OBJECTS = storectl.$(OBJEXT)
 storectl_OBJECTS = $(am_storectl_OBJECTS)
 storectl_LDADD = $(LDADD)
 am_stored_OBJECTS = stored.$(OBJEXT) mtab_check.$(OBJEXT) \
-	mtab_check_trigger.$(OBJEXT) logger.$(OBJEXT)
+	mtab_check_trigger.$(OBJEXT) logger.$(OBJEXT) \
+	demonizer.$(OBJEXT)
 stored_OBJECTS = $(am_stored_OBJECTS)
 stored_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -245,7 +246,10 @@ top_srcdir = @top_srcdir@
 # what flags you want to pass to the C compiler & linker
 AM_CFLAGS = --pedantic -Wall -std=c99 -O3
 AM_LDFLAGS = 
-stored_SOURCES = stored.c mtab_check.h mtab_check.c mtab_check_trigger.h mtab_check_trigger.c util/logger.h util/logger.c
+stored_SOURCES = stored.c mtab_check.h mtab_check.c mtab_check_trigger.h mtab_check_trigger.c \
+util/logger.h util/logger.c \
+util/demonizer.h util/demonizer.c
+
 storectl_SOURCES = storectl.c
 all: all-am
 
@@ -338,6 +342,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/demonizer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logger.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mtab_check.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mtab_check_trigger.Po@am__quote@
@@ -371,6 +376,20 @@ logger.obj: util/logger.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util/logger.c' object='logger.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o logger.obj `if test -f 'util/logger.c'; then $(CYGPATH_W) 'util/logger.c'; else $(CYGPATH_W) '$(srcdir)/util/logger.c'; fi`
+
+demonizer.o: util/demonizer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT demonizer.o -MD -MP -MF $(DEPDIR)/demonizer.Tpo -c -o demonizer.o `test -f 'util/demonizer.c' || echo '$(srcdir)/'`util/demonizer.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/demonizer.Tpo $(DEPDIR)/demonizer.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util/demonizer.c' object='demonizer.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o demonizer.o `test -f 'util/demonizer.c' || echo '$(srcdir)/'`util/demonizer.c
+
+demonizer.obj: util/demonizer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT demonizer.obj -MD -MP -MF $(DEPDIR)/demonizer.Tpo -c -o demonizer.obj `if test -f 'util/demonizer.c'; then $(CYGPATH_W) 'util/demonizer.c'; else $(CYGPATH_W) '$(srcdir)/util/demonizer.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/demonizer.Tpo $(DEPDIR)/demonizer.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util/demonizer.c' object='demonizer.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o demonizer.obj `if test -f 'util/demonizer.c'; then $(CYGPATH_W) 'util/demonizer.c'; else $(CYGPATH_W) '$(srcdir)/util/demonizer.c'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique

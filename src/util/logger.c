@@ -1,7 +1,7 @@
 #include <config.h>
-#include "logger.h"
 #include <syslog.h>
 #include <stdio.h>
+#include "logger.h"
 
 void open_log(const char *name)
 {
