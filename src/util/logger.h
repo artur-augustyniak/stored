@@ -7,6 +7,10 @@ void close_log();
 
 void put_notice(char* msg);
 
+void put_warn(char* msg);
+
+void put_crit(char* msg);
+
 void put_error(char* msg);
 
 #endif

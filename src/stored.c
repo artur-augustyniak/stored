@@ -2,17 +2,14 @@
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <signal.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include "util/logger.h"
 #include "util/demonizer.h"
 #include "mtab_check_trigger.h"
 #include "mtab_check.h"
 
 
-const char NAME[] = "stored";
+
 
 int main()
 {

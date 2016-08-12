@@ -1,4 +1,9 @@
-/* Blablish */
-//#define IS_DAEMON
+#define IS_DAEMON
 
-#define AUTO_CHECK_INTERVAL 1 * 1000
+#define AUTO_CHECK_INTERVAL 10 * 1000
+
+#define FREE_PERCENT_NOTICE 30
+
+#define FREE_PERCENT_WARN 15
+
+#define FREE_PERCENT_CRIT 5

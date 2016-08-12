@@ -1,4 +1,9 @@
 #include <config.h>
+#include <unistd.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include "logger.h"
 #include "mtab_check_trigger.h"
 void skeleton_daemon()
@@ -50,7 +55,7 @@ void skeleton_daemon()
         close(x);
     }
     /* Open the log file */
-    open_log(NAME);
+    open_log(PACKAGE_NAME);
 #else
     put_notice("Debug mode.");
 #endif
