@@ -6,7 +6,6 @@
 void open_log(const char *name)
 {
      openlog(name, LOG_PID, LOG_DAEMON);
-
 }
 
 void close_log()
