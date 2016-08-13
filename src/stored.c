@@ -15,16 +15,15 @@ int main()
 {
     signal(SIGINT, &sigint_handler);
     atexit(&destroy_mtab);
+    atexit(&destory_current_notices);
+    #ifdef IS_DAEMON
+        atexit(&close_log);
+    #endif
     skeleton_daemon();
     put_notice("stored daemon started.");
     init_checks_loop();
     init_mtab();
     checks_loop(&check_mtab);
     put_notice("stored daemon terminated.");
-
-#ifdef IS_DAEMON
-    close_log();
-#endif
-
     return EXIT_SUCCESS;
 }

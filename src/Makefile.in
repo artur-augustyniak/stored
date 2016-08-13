@@ -244,7 +244,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 
 # what flags you want to pass to the C compiler & linker
-AM_CFLAGS = --pedantic -Wall -std=c99 -O3
+AM_CFLAGS = --pedantic -Wall -std=gnu99 -O3
 AM_LDFLAGS = 
 stored_SOURCES = stored.c mtab_check.h mtab_check.c mtab_check_trigger.h mtab_check_trigger.c \
 util/logger.h util/logger.c \

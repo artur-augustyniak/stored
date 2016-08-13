@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <linux/types.h>
 #include <linux/netlink.h>
+#include "mtab_check.h"
 #include "mtab_check_trigger.h"
 #include "util/logger.h"
 
@@ -40,10 +41,24 @@ void break_checks_loop(void)
     active = false;
 }
 
+void report_list()
+{
+    NE c = entries_handle;
+    while (c != NULL)
+    {
+        printf("ENTRY: %s %i %p\n", c->path, c->free_percent, c->next);
+        c = c->next;
+    }
+}
+
+
 void checks_loop(void (*check_func)(void))
 {
         while (-1!=poll(&pfd, 1, AUTO_CHECK_INTERVAL) && active) {
                 check_func();
+                printf("#############################################\n");
+                report_list();
+                printf("#############################################\n");
                 recv(pfd.fd, buf, sizeof(buf), MSG_DONTWAIT);
         }
 }

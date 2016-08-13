@@ -3,6 +3,7 @@ Alert o małej ilości miejsca na dysku
 
 build system, testy i tdd clean code w c
 
+close log - atexit
 opcja nie demonizuj
 szukanie konfiguracji w etc
 opcja szukaj konfiguracji w zadanym miejscu
