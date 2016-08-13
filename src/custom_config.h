@@ -7,3 +7,5 @@
 #define FREE_PERCENT_WARN 15
 
 #define FREE_PERCENT_CRIT 5
+
+#define SERVER_PORT 8081

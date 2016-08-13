@@ -3,12 +3,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <pthread.h>
 #include "util/logger.h"
 #include "util/demonizer.h"
 #include "mtab_check_trigger.h"
 #include "mtab_check.h"
-
-
+#include "srv/srv.h"
 
 
 int main()
@@ -19,6 +19,10 @@ int main()
     #ifdef IS_DAEMON
         atexit(&close_log);
     #endif
+
+    pthread_t srv_thread;
+    pthread_create(&srv_thread, NULL, &serve, NULL);
+    
     skeleton_daemon();
     put_notice("stored daemon started.");
     init_checks_loop();

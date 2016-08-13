@@ -95,7 +95,7 @@ storectl_OBJECTS = $(am_storectl_OBJECTS)
 storectl_LDADD = $(LDADD)
 am_stored_OBJECTS = stored.$(OBJEXT) mtab_check.$(OBJEXT) \
 	mtab_check_trigger.$(OBJEXT) logger.$(OBJEXT) \
-	demonizer.$(OBJEXT)
+	demonizer.$(OBJEXT) srv.$(OBJEXT)
 stored_OBJECTS = $(am_stored_OBJECTS)
 stored_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -244,11 +244,12 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 
 # what flags you want to pass to the C compiler & linker
-AM_CFLAGS = --pedantic -Wall -std=gnu99 -O3
+AM_CFLAGS = --pedantic -Wall -std=gnu99 -O3 -lpthread
 AM_LDFLAGS = 
 stored_SOURCES = stored.c mtab_check.h mtab_check.c mtab_check_trigger.h mtab_check_trigger.c \
 util/logger.h util/logger.c \
-util/demonizer.h util/demonizer.c
+util/demonizer.h util/demonizer.c \
+srv/srv.h srv/srv.c
 
 storectl_SOURCES = storectl.c
 all: all-am
@@ -346,6 +347,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logger.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mtab_check.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mtab_check_trigger.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/srv.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/storectl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stored.Po@am__quote@
 
@@ -390,6 +392,20 @@ demonizer.obj: util/demonizer.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util/demonizer.c' object='demonizer.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o demonizer.obj `if test -f 'util/demonizer.c'; then $(CYGPATH_W) 'util/demonizer.c'; else $(CYGPATH_W) '$(srcdir)/util/demonizer.c'; fi`
+
+srv.o: srv/srv.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT srv.o -MD -MP -MF $(DEPDIR)/srv.Tpo -c -o srv.o `test -f 'srv/srv.c' || echo '$(srcdir)/'`srv/srv.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/srv.Tpo $(DEPDIR)/srv.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='srv/srv.c' object='srv.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o srv.o `test -f 'srv/srv.c' || echo '$(srcdir)/'`srv/srv.c
+
+srv.obj: srv/srv.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT srv.obj -MD -MP -MF $(DEPDIR)/srv.Tpo -c -o srv.obj `if test -f 'srv/srv.c'; then $(CYGPATH_W) 'srv/srv.c'; else $(CYGPATH_W) '$(srcdir)/srv/srv.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/srv.Tpo $(DEPDIR)/srv.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='srv/srv.c' object='srv.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o srv.obj `if test -f 'srv/srv.c'; then $(CYGPATH_W) 'srv/srv.c'; else $(CYGPATH_W) '$(srcdir)/srv/srv.c'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
