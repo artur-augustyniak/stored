@@ -4,6 +4,9 @@
 
 pthread_mutex_t mxq; /* mutex used as quit flag */
 
+
+
+
 void init_server(void);
 
 void* run_server(void *);

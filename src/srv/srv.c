@@ -3,8 +3,50 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+#include <netdb.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <sys/wait.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include "srv.h"
 #include "mtab_check.h"
+
+#define BUFSIZE 1024
+#define MAXERRS 16
+
+extern char **environ; /* the environment */
+
+static int parentfd;          /* parent socket */
+static int childfd;           /* child socket */
+
+/*
+ * error - wrapper for perror used for bad syscalls
+ */
+static void error(char *msg)
+{
+  perror(msg);
+}
+
+/*
+ * cerror - returns an error message to the client
+ */
+static void cerror(FILE *stream, char *cause, char *errno, char *shortmsg, char *longmsg)
+{
+  fprintf(stream, "HTTP/1.1 %s %s\n", errno, shortmsg);
+  fprintf(stream, "Content-type: text/html\n");
+  fprintf(stream, "\n");
+  fprintf(stream, "<html><title>Tiny Error</title>");
+  fprintf(stream, "<body bgcolor=""ffffff"">\n");
+  fprintf(stream, "%s: %s\n", errno, shortmsg);
+  fprintf(stream, "<p>%s: %s\n", longmsg, cause);
+  fprintf(stream, "<hr><em>The Tiny Web server</em>\n");
+}
 
 
 static int quit(pthread_mutex_t *mtx)
@@ -19,25 +61,139 @@ static int quit(pthread_mutex_t *mtx)
   return 1;
 }
 
-void init_server(void){
+void init_server(void)
+{
     pthread_mutex_init(&mxq,NULL);
     pthread_mutex_lock(&mxq);
 }
 
-
 void* run_server(void *arg)
 {
+
+    /* variables for connection management */
+
+
+    int portno = SERVER_PORT;            /* port to listen on */
+    socklen_t  clientlen;         /* byte size of client's address */
+    struct hostent *hostp; /* client host info */
+    char *hostaddrp;       /* dotted decimal host addr string */
+    int optval;            /* flag value for setsockopt */
+    struct sockaddr_in serveraddr; /* server's addr */
+    struct sockaddr_in clientaddr; /* client addr */
+
+    /* variables for connection I/O */
+    FILE *stream;          /* stream version of childfd */
+    char buf[BUFSIZE];     /* message buffer */
+    char method[BUFSIZE];  /* request method */
+    char uri[BUFSIZE];     /* request uri */
+    char version[BUFSIZE]; /* request method */
+
+
+    /* open socket descriptor */
+    parentfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (parentfd < 0)
+    {
+        error("ERROR opening socket");
+    }
+
+    /* allows us to restart server immediately */
+    optval = 1;
+    setsockopt(parentfd, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval , sizeof(int));
+
+    /* bind port to socket */
+    bzero((char *) &serveraddr, sizeof(serveraddr));
+    serveraddr.sin_family = AF_INET;
+    serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    serveraddr.sin_port = htons((unsigned short)portno);
+    if (bind(parentfd, (struct sockaddr *) &serveraddr, sizeof(serveraddr)) < 0)
+    {
+        error("ERROR on binding");
+    }
+
+    /* get us ready to accept connection requests */
+    /* allow 5 requests to queue up */
+    if (listen(parentfd, 5) < 0){
+        error("ERROR on listen");
+    }
+
+    /*
+     * main loop: wait for a connection request, parse HTTP,
+     * serve requested content, close connection.
+    */
+    clientlen = sizeof(clientaddr);
+
     pthread_mutex_t *mx = arg;
+
     while(!quit(mx))
     {
-        sleep(5);
-        printf("from server\n");
-        report_list();
+        /* wait for a connection request */
+        childfd = accept(parentfd, (struct sockaddr *) &clientaddr, &clientlen);
+        if (childfd < 0){
+            error("ERROR on accept");
+            break;
+        }
+        /* determine who sent the message */
+        hostp = gethostbyaddr((const char *)&clientaddr.sin_addr.s_addr, sizeof(clientaddr.sin_addr.s_addr), AF_INET);
+        if (hostp == NULL){
+            error("ERROR on gethostbyaddr");
+        }
+        hostaddrp = inet_ntoa(clientaddr.sin_addr);
+        if (hostaddrp == NULL){
+          error("ERROR on inet_ntoa\n");
+        }
+
+        /* open the child socket descriptor as a stream */
+        if ((stream = fdopen(childfd, "r+")) == NULL){
+            error("ERROR on fdopen");
+        }
+
+        /* get the HTTP request line */
+        fgets(buf, BUFSIZE, stream);
+        //printf("%s", buf);
+        sscanf(buf, "%s %s %s\n", method, uri, version);
+
+        /* tiny only supports the GET method */
+        if (strcasecmp(method, "GET"))
+        {
+            cerror(stream, method, "501", "Not Implemented", "Stored does not implement this method");
+            fclose(stream);
+            close(childfd);
+            continue;
+        }
+
+        /* read (and ignore) the HTTP headers */
+        fgets(buf, BUFSIZE, stream);
+        //printf("%s", buf);
+        while(strcmp(buf, "\r\n"))
+        {
+            fgets(buf, BUFSIZE, stream);
+            //printf("%s", buf);
+        }
+
+
+        /* print response header */
+        fprintf(stream, "HTTP/1.1 200 OK\n");
+        fprintf(stream, "Server: stored daemon\n");
+        fprintf(stream, "Content-length: %d\n", 43);
+        fprintf(stream, "Content-type: %s\n", "application/json");
+        fprintf(stream, "\r\n");
+        fflush(stream);
+
+        char a[] = "{\"entries\": {\"/tmp/vfs\": 12, \"/boot\": 50 }}";
+        fwrite(a, 1, 43, stream);
+        /* clean up */
+        fclose(stream);
+        close(childfd);
+        //sleep(5);
+        //printf("from server\n");
+        //report_list();
     }
     return NULL;
 }
 
 
 void stop_server(void){
+     shutdown(childfd, SHUT_RDWR);
+     shutdown(parentfd, SHUT_RDWR);
      pthread_mutex_unlock(&mxq);
 }
