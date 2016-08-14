@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include "logger.h"
 #include "mtab_check_trigger.h"
+#include "srv/srv.h"
 void skeleton_daemon()
 {
 #ifdef IS_DAEMON
@@ -63,5 +64,6 @@ void skeleton_daemon()
 
 void sigint_handler(int sig) {
 	break_checks_loop();
+	stop_server();
 }
 

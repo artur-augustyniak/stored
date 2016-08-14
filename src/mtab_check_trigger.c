@@ -41,22 +41,11 @@ void break_checks_loop(void)
     active = false;
 }
 
-void report_list()
-{
-    for(int i = 0; i < entries_count; i++)
-    {
-        printf("ENTRY: %s %i\n", entries[i]->path, entries[i]->free_percent);
-    }
-}
-
 
 void checks_loop(void (*check_func)(void))
 {
         while (-1!=poll(&pfd, 1, AUTO_CHECK_INTERVAL) && active) {
                 check_func();
-                printf("#############################################\n");
-                report_list();
-                printf("#############################################\n");
                 recv(pfd.fd, buf, sizeof(buf), MSG_DONTWAIT);
         }
 }

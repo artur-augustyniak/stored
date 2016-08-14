@@ -24,7 +24,7 @@ static char buf[MSG_LEN];
 
 
 static void append_notice(int pos, char *path, int percent){
-
+    pthread_mutex_lock(&entries_lock);
     //Halving up
     if(entries_count == runtime_entries_capacity-1){
         NE *tmp_entries;
@@ -57,10 +57,11 @@ static void append_notice(int pos, char *path, int percent){
         strcpy(entries[pos]->path, path);
         entries[pos]->free_percent = percent;
     }
+    pthread_mutex_unlock(&entries_lock);
 }
 
 void destory_current_notices(void){
-
+    pthread_mutex_lock(&entries_lock);
     for(int i = 0 ; i < runtime_entries_capacity; i++)
     {
         if(NULL != entries[i])
@@ -71,6 +72,7 @@ void destory_current_notices(void){
         }
     }
     free(entries);
+    pthread_mutex_unlock(&entries_lock);
 }
 
 void init_mtab(void)
@@ -81,6 +83,7 @@ void init_mtab(void)
     }
     runtime_entries_capacity = DEFAULT_NOTIFICATION_CAPACITY;
     entries = calloc(runtime_entries_capacity, sizeof(NE));
+    pthread_mutex_init(&entries_lock, NULL);
 }
 
 void destroy_mtab(void)
@@ -88,7 +91,23 @@ void destroy_mtab(void)
     if( 0 == endmntent(mtabf)){
         put_error("endmntent fail");
     }
+    destory_current_notices();
+    pthread_mutex_destroy(&entries_lock);
 }
+
+
+void report_list()
+{
+    pthread_mutex_lock(&entries_lock);
+    printf("#############################################\n");
+    for(int i = 0; i < entries_count; i++)
+    {
+        printf("ENTRY: %s %i\n", entries[i]->path, entries[i]->free_percent);
+    }
+    printf("#############################################\n");
+    pthread_mutex_unlock(&entries_lock);
+}
+
 
 void check_mtab(void)
 {
@@ -133,8 +152,8 @@ void check_mtab(void)
             put_error("statvfs error");
         }
     }
+    pthread_mutex_lock(&entries_lock);
     //Halving down
-    printf("ent: %i tresh: %i cap: %i\n",entries_count, (int) (runtime_entries_capacity-1)/ 4, runtime_entries_capacity);
     if(entries_count > 0 && entries_count == (int) (runtime_entries_capacity-1)/ 4)
     {
         NE *tmp_entries;
@@ -152,5 +171,9 @@ void check_mtab(void)
         tmp_entries = (NE* )realloc(entries, runtime_entries_capacity * sizeof(NE));
         entries = tmp_entries;
     }
+    pthread_mutex_unlock(&entries_lock);
+    #ifndef IS_DAEMON
+        report_list();
+    #endif
 }
 
