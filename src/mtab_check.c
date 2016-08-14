@@ -23,42 +23,54 @@ static struct statvfs s;
 static char buf[MSG_LEN];
 
 
-static void fill_struct(NE s, char *path, int percent)
-{
+static void append_notice(int pos, char *path, int percent){
 
-    s->path = strdup(path);
-    s->free_percent = percent;
-    s->next = NULL;
+    //Halving up
+    if(entries_count == runtime_entries_capacity-1){
+        NE *tmp_entries;
 
-}
+        runtime_entries_capacity *=2;
+        tmp_entries = (NE* )realloc(entries, runtime_entries_capacity * sizeof(NE));
+        entries = tmp_entries;
+        for(int i = entries_count; i < runtime_entries_capacity; i++)
+        {
+                entries[i] = NULL;
+        }
+    }
 
-static void append_notice(char *path, int percent){
-    if(NULL == entries_handle)
+    if(NULL == entries[pos])
     {
-        entries_handle = malloc(sizeof(NOTICED_ENTRY));
-        fill_struct(entries_handle, path, percent);
-        last_slot = entries_handle;
+        entries[pos] = malloc(sizeof(NOTICED_ENTRY));
+        entries[pos]->path = strdup(path);
+        entries[pos]->free_percent = percent;
     }
     else
     {
-        last_slot->next = malloc(sizeof(NOTICED_ENTRY));
-        fill_struct(last_slot->next, path, percent);
-        last_slot = last_slot->next;
+        size_t old_str = strlen(entries[pos]->path)+1;
+        size_t new_str = strlen(path)+1;
+        if(new_str > old_str)
+        {
+            char *tmp;
+            tmp = (char*)realloc(entries[pos]->path, new_str);
+            entries[pos]->path = tmp;
+        }
+        strcpy(entries[pos]->path, path);
+        entries[pos]->free_percent = percent;
     }
 }
 
 void destory_current_notices(void){
 
-   NE current = entries_handle;
-   NE next;
-   while (current != NULL)
-   {
-       next = current->next;
-       free(current->path);
-       free(current);
-       current = next;
-   }
-    entries_handle = NULL;
+    for(int i = 0 ; i < runtime_entries_capacity; i++)
+    {
+        if(NULL != entries[i])
+        {
+            free(entries[i]->path);
+            free(entries[i]);
+            entries[i] = NULL;
+        }
+    }
+    free(entries);
 }
 
 void init_mtab(void)
@@ -67,6 +79,8 @@ void init_mtab(void)
     if(!mtabf){
         put_error("setmntent fail");
     }
+    runtime_entries_capacity = DEFAULT_NOTIFICATION_CAPACITY;
+    entries = calloc(runtime_entries_capacity, sizeof(NE));
 }
 
 void destroy_mtab(void)
@@ -81,17 +95,21 @@ void check_mtab(void)
     rewind(mtabf);
     M_TAB* mt;
     int free_percent;
-    destory_current_notices();
+
+    entries_count = 0;
     while((mt = getmntent(mtabf)))
     {
         if(0 == statvfs(mt->mnt_dir, &s))
         {
             if(0 < s.f_blocks)
             {
+
                 free_percent = (int)(100.0 /((s.f_blocks - (s.f_bfree - s.f_bavail)) * s.f_bsize) * (s.f_bavail * s.f_bsize));
+
                 if(FREE_PERCENT_NOTICE >= free_percent)
                 {
-                    append_notice(mt->mnt_dir, free_percent);
+                    append_notice(entries_count, mt->mnt_dir, free_percent);
+                    entries_count++;
 
                     #ifndef IS_DAEMON
                         printf("timer event: %u %s\n", (unsigned int)time(0), mt->mnt_dir);
@@ -115,6 +133,24 @@ void check_mtab(void)
             put_error("statvfs error");
         }
     }
-
+    //Halving down
+    printf("ent: %i tresh: %i cap: %i\n",entries_count, (int) (runtime_entries_capacity-1)/ 4, runtime_entries_capacity);
+    if(entries_count > 0 && entries_count == (int) (runtime_entries_capacity-1)/ 4)
+    {
+        NE *tmp_entries;
+        int old_capacity = runtime_entries_capacity;
+        runtime_entries_capacity /=2;
+        for(int i = runtime_entries_capacity; i < old_capacity; i++)
+        {
+            if(NULL != entries[i])
+            {
+                free(entries[i]->path);
+                free(entries[i]);
+                entries[i] = NULL;
+            }
+        }
+        tmp_entries = (NE* )realloc(entries, runtime_entries_capacity * sizeof(NE));
+        entries = tmp_entries;
+    }
 }
 

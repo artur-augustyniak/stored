@@ -43,11 +43,9 @@ void break_checks_loop(void)
 
 void report_list()
 {
-    NE c = entries_handle;
-    while (c != NULL)
+    for(int i = 0; i < entries_count; i++)
     {
-        printf("ENTRY: %s %i %p\n", c->path, c->free_percent, c->next);
-        c = c->next;
+        printf("ENTRY: %s %i\n", entries[i]->path, entries[i]->free_percent);
     }
 }
 

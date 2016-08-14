@@ -20,9 +20,9 @@ int main()
         atexit(&close_log);
     #endif
 
-    pthread_t srv_thread;
-    pthread_create(&srv_thread, NULL, &serve, NULL);
-    
+//    pthread_t srv_thread;
+//    pthread_create(&srv_thread, NULL, &serve, NULL);
+
     skeleton_daemon();
     put_notice("stored daemon started.");
     init_checks_loop();
