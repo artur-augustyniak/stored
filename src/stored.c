@@ -25,7 +25,13 @@ int main()
     init_mtab();
 
     pthread_t srv_thread;
+
     init_server();
+
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGPIPE);
+    pthread_sigmask(SIG_BLOCK, &set, NULL);
     pthread_create(&srv_thread, NULL, &run_server, &mxq);
 
     checks_loop(&check_mtab);

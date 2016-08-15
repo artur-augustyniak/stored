@@ -2,8 +2,9 @@
 #define MTAB_CHECK_H
 #include<pthread.h>
 
+#include <linux/limits.h>
   typedef struct NOTICED_ENTRY{
-    char *path;
+    char path[PATH_MAX];
     int free_percent;
   } NOTICED_ENTRY, *NE;
 

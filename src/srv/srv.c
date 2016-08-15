@@ -111,7 +111,7 @@ void* run_server(void *arg)
     /* bind port to socket */
     bzero((char *) &serveraddr, sizeof(serveraddr));
     serveraddr.sin_family = AF_INET;
-    serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    serveraddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     serveraddr.sin_port = htons((unsigned short)portno);
     if (bind(parentfd, (struct sockaddr *) &serveraddr, sizeof(serveraddr)) < 0)
     {

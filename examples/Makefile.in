@@ -222,7 +222,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 exampledir = $(datarootdir)/doc/@PACKAGE@
-example_DATA = hello.c
+example_DATA = hello.c create_filled_fs.sh
 all: all-am
 
 .SUFFIXES:

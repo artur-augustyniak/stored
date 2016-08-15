@@ -23,6 +23,7 @@ void skeleton_daemon()
     //TODO: Implement a working signal handler */
     signal(SIGCHLD, SIG_IGN);
     signal(SIGHUP, SIG_IGN);
+    signal(SIGPIPE, SIG_IGN);
     pid = fork();
     if (pid < 0)
         exit(EXIT_FAILURE);

@@ -6,7 +6,6 @@
 #ifndef IS_DAEMON
     #include <time.h>
 #endif
-#include <linux/limits.h>
 #include <sys/statvfs.h>
 #include "mtab_check.h"
 #include "util/logger.h"
@@ -60,19 +59,11 @@ static void append_notice(int pos, char *path, int percent){
     if(NULL == entries[pos])
     {
         entries[pos] = malloc(sizeof(NOTICED_ENTRY));
-        entries[pos]->path = strdup(path);
+        strcpy (entries[pos]->path,path);
         entries[pos]->free_percent = percent;
     }
     else
     {
-        size_t old_str = strlen(entries[pos]->path)+1;
-        size_t new_str = strlen(path)+1;
-        if(new_str > old_str)
-        {
-            char *tmp;
-            tmp = (char*)realloc(entries[pos]->path, new_str);
-            entries[pos]->path = tmp;
-        }
         strcpy(entries[pos]->path, path);
         entries[pos]->free_percent = percent;
     }
@@ -85,7 +76,6 @@ void destory_current_notices(void){
     {
         if(NULL != entries[i])
         {
-            free(entries[i]->path);
             free(entries[i]);
             entries[i] = NULL;
         }
@@ -106,7 +96,6 @@ void init_mtab(void)
     runtime_msg_bufs_size = INIT_MSG_BUFFER;
     msg_buf = calloc(runtime_msg_bufs_size, sizeof(char));
     msg_rows_buf = calloc(runtime_msg_bufs_size, sizeof(char));
-
     pthread_mutex_init(&entries_lock, NULL);
 }
 
@@ -233,7 +222,6 @@ void check_mtab(void)
         {
             if(NULL != entries[i])
             {
-                free(entries[i]->path);
                 free(entries[i]);
                 entries[i] = NULL;
             }
@@ -242,8 +230,5 @@ void check_mtab(void)
         entries = tmp_entries;
     }
     pthread_mutex_unlock(&entries_lock);
-    #ifndef IS_DAEMON
-        report_list(stdout);
-    #endif
 }
 
