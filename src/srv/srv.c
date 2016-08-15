@@ -1,3 +1,7 @@
+/*
+ * Based on Dave O'Hallarons, Carnegie Mellon tiny.c
+ * https://www.cs.cmu.edu/afs/cs/academic/class/15213-f08/www/code/tiny/
+ */
 #include <config.h>
 #include <stdio.h>
 #include <unistd.h>
