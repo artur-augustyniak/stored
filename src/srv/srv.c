@@ -22,8 +22,11 @@
 
 extern char **environ; /* the environment */
 
+char *as = "501";
+
 static int parentfd;          /* parent socket */
 static int childfd;           /* child socket */
+
 
 /*
  * error - wrapper for perror used for bad syscalls
@@ -36,15 +39,16 @@ static void error(char *msg)
 /*
  * cerror - returns an error message to the client
  */
-static void cerror(FILE *stream, char *cause, char *errno, char *shortmsg, char *longmsg)
+static void cerror(FILE *stream, char *cause, char *err, char *shortmsg, char *longmsg
+)
 {
-  fprintf(stream, "HTTP/1.1 %s %s\n", errno, shortmsg);
+  fprintf(stream, "HTTP/1.1 %s %s\n", err, shortmsg);
   fprintf(stream, "Content-type: text/html\n");
   fprintf(stream, "\n");
   fprintf(stream, "<html><title>Tiny Error</title>");
   fprintf(stream, "<body bgcolor=""ffffff"">\n");
-  fprintf(stream, "%s: %s\n", errno, shortmsg);
-  fprintf(stream, "<p>%s: %s\n", longmsg, cause);
+  fprintf(stream, "%s: %s\n", err, shortmsg);
+  fprintf(stream, "<p>%s: %s\n", "sdf", cause);
   fprintf(stream, "<hr><em>The Tiny Web server</em>\n");
 }
 
@@ -146,13 +150,10 @@ void* run_server(void *arg)
         if ((stream = fdopen(childfd, "r+")) == NULL){
             error("ERROR on fdopen");
         }
-
         /* get the HTTP request line */
         fgets(buf, BUFSIZE, stream);
-        //printf("%s", buf);
         sscanf(buf, "%s %s %s\n", method, uri, version);
 
-        /* tiny only supports the GET method */
         if (strcasecmp(method, "GET"))
         {
             cerror(stream, method, "501", "Not Implemented", "Stored does not implement this method");
@@ -163,30 +164,14 @@ void* run_server(void *arg)
 
         /* read (and ignore) the HTTP headers */
         fgets(buf, BUFSIZE, stream);
-        //printf("%s", buf);
         while(strcmp(buf, "\r\n"))
         {
             fgets(buf, BUFSIZE, stream);
-            //printf("%s", buf);
         }
-
-
-        /* print response header */
-        fprintf(stream, "HTTP/1.1 200 OK\n");
-        fprintf(stream, "Server: stored daemon\n");
-        fprintf(stream, "Content-length: %d\n", 43);
-        fprintf(stream, "Content-type: %s\n", "application/json");
-        fprintf(stream, "\r\n");
-        fflush(stream);
-
-        char a[] = "{\"entries\": {\"/tmp/vfs\": 12, \"/boot\": 50 }}";
-        fwrite(a, 1, 43, stream);
+        report_list(stream);
         /* clean up */
         fclose(stream);
         close(childfd);
-        //sleep(5);
-        //printf("from server\n");
-        //report_list();
     }
     return NULL;
 }

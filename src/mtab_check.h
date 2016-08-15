@@ -15,7 +15,7 @@
   void init_mtab(void);
   void destroy_mtab(void);
   void check_mtab(void);
-  void report_list(void);
+  void report_list(FILE *stream);
   void destory_current_notices(void);
 
 #endif
