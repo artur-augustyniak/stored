@@ -128,15 +128,15 @@ void report_list(FILE *stream)
     int buffer_approx = approx_resp_buffers_size();
     //Buffers halving
     char *tmp;
-    if(buffer_approx >= runtime_msg_bufs_size-1)
+    if(buffer_approx > runtime_msg_bufs_size)
     {
-        runtime_msg_bufs_size *=2;
+        runtime_msg_bufs_size =2 * buffer_approx;
         tmp = (char *) realloc(msg_buf, runtime_msg_bufs_size * sizeof(char));
         msg_buf = tmp;
         tmp = (char *) realloc(msg_rows_buf, runtime_msg_bufs_size * sizeof(char));
         msg_rows_buf = tmp;
     }
-    else if(buffer_approx > 0 && buffer_approx <= (int) runtime_msg_bufs_size/ 3)
+    else if(buffer_approx <= (int) runtime_msg_bufs_size/ 4)
     {
         runtime_msg_bufs_size /=2;
         tmp = (char *) realloc(msg_buf, runtime_msg_bufs_size * sizeof(char));
