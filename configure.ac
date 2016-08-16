@@ -11,6 +11,7 @@ AM_INIT_AUTOMAKE([foreign])
 AM_MAINTAINER_MODE([disable])
 
 # Checks for programs.
+: ${CFLGS=""}
 AC_PROG_CC
 
 # Checks for libraries.
