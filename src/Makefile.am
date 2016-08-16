@@ -1,5 +1,6 @@
 # what flags you want to pass to the C compiler & linker
-AM_CFLAGS = --pedantic -Wall -std=gnu99 -O3 -lpthread
+AM_CFLAGS = --pedantic -Wall -std=gnu99 -O3 -lpthread -D_FORTIFY_SOURCE=2 -fstack-protector \
+-Wno-unused-result
 AM_LDFLAGS =
 
 # this lists the binaries to produce, the (non-PHONY, binary) targets in
