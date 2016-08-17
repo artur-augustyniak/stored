@@ -9,7 +9,7 @@
   } NOTICED_ENTRY, *NE;
 
   int runtime_entries_capacity;
-  NE *entries;
+  /*@only@*/ NE *entries;
   int entries_count;
   pthread_mutex_t entries_lock;
 
