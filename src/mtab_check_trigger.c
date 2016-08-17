@@ -46,6 +46,7 @@ void checks_loop(void (*check_func)(void))
 {
         while (-1!=poll(&pfd, 1, AUTO_CHECK_INTERVAL) && active) {
                 check_func();
+                /* Ignore recved data */
                 recv(pfd.fd, buf, sizeof(buf), MSG_DONTWAIT);
         }
 }

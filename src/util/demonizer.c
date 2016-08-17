@@ -29,7 +29,7 @@ void skeleton_daemon()
         exit(EXIT_FAILURE);
     if (pid > 0)
         exit(EXIT_SUCCESS);
-    umask(0);
+    umask(066);
     chdir("/tmp");
     int x;
     for (x = sysconf(_SC_OPEN_MAX); x>0; x--)

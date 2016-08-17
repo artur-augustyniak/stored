@@ -136,7 +136,7 @@ void report_list(FILE *stream)
         tmp = (char *) realloc(msg_rows_buf, runtime_msg_bufs_size * sizeof(char));
         msg_rows_buf = tmp;
     }
-    else if(buffer_approx <= (int) runtime_msg_bufs_size/ 4)
+    else if(buffer_approx <= (int) runtime_msg_bufs_size / 4)
     {
         runtime_msg_bufs_size /=2;
         tmp = (char *) realloc(msg_buf, runtime_msg_bufs_size * sizeof(char));

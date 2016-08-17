@@ -12,4 +12,4 @@ It has also tiny builtin web server so you can get your warnings in restfull man
 ## Compilile and run
 Classic `./configure && make && make install`. Right now install step is not necessary.
 Since configuration still uses `./src/custom_config.h` you can run just built artifact `./src/stored`.
-Then run (as root) `./examples/create_filled_fs.sh`.
+Then run (as root) `./test/create_filled_fs.sh <num fs> <pause sec.>`.
