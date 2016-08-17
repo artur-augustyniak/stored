@@ -14,6 +14,13 @@ AM_MAINTAINER_MODE([disable])
 : ${CFLAGS=""}
 AC_PROG_CC
 
+PKG_PROG_PKG_CONFIG
+AC_ARG_WITH([systemdsystemunitdir],
+        AS_HELP_STRING([--with-systemdsystemunitdir=DIR], [Directory for systemd service files]),
+        [], [with_systemdsystemunitdir=$($PKG_CONFIG --variable=systemdsystemunitdir systemd)])
+AC_SUBST([systemdsystemunitdir], [$with_systemdsystemunitdir])
+AM_CONDITIONAL(HAVE_SYSTEMD, [test -n "$with_systemdsystemunitdir"])
+
 # Checks for libraries.
 
 # Checks for header files.
@@ -28,4 +35,4 @@ AC_PROG_CC
 # AC_CHECK_FUNCS([memset strerror])
 
 #AC_OUTPUT
-AC_OUTPUT(Makefile src/Makefile doc/Makefile examples/Makefile man/Makefile scripts/Makefile)
+AC_OUTPUT(Makefile src/Makefile doc/Makefile examples/Makefile man/Makefile scripts/Makefile systemd/Makefile)

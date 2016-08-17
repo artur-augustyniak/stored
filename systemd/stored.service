@@ -1,0 +1,11 @@
+[Unit]
+Description=Stored Daemon
+Documentation=https://aaugustyniak.pl/stored
+
+[Service]
+Type=forking
+ExecStart=/usr/local/sbin/stored
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
