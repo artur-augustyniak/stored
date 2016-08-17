@@ -10,6 +10,10 @@ This little project puts syslog msg. when any mount point has less than 30%  spa
 It has also tiny builtin web server so you can get your warnings in restfull manner.
 
 ## Compilile and run
-Classic `./configure && make && make install`. Right now install step is not necessary.
-Since configuration still uses `./src/custom_config.h` you can run just built artifact `./src/stored`.
-Then run (as root) `./test/create_filled_fs.sh <num fs> <pause sec.>`.
+```
+$ ./configure && make
+# make install
+#systemctl enable stored.service
+#systemctl start stored.service
+# ./test/create_filled_fs.sh <num fs> <pause sec.>`.
+```
