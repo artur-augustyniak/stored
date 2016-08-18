@@ -9,6 +9,10 @@
 #include "mtab_check_trigger.h"
 #include "mtab_check.h"
 #include "srv/srv.h"
+#include <stdbool.h>
+#if defined(HAVE_SYSTEMD)
+#include <systemd/sd-daemon.h>
+#endif
 
 int main()
 {
@@ -34,6 +38,12 @@ int main()
     pthread_sigmask(SIG_BLOCK, &set, NULL);
     pthread_create(&srv_thread, NULL, &run_server, &mxq);
 
+
+    bool _sd_booted = sd_booted();
+    if(_sd_booted)
+    {
+        sd_notify(1, "READY=1");
+    }
     checks_loop(&check_mtab);
 
     pthread_join(srv_thread, NULL);
