@@ -1,6 +1,6 @@
 .idea
 *~
-
+*.tmp
 # automake
 autoscan.log
 configure.scan
@@ -18,3 +18,7 @@ stamp-h1
 storectl
 stored
 *.o
+
+#gcc
+a.out
+*.gch
