@@ -1815,7 +1815,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 ac_config_headers="$ac_config_headers ./config/config.h"
 
-
 ac_aux_dir=
 for ac_dir in ./config "$srcdir"/./config; do
   if test -f "$ac_dir/install-sh"; then
@@ -1843,6 +1842,9 @@ fi
 ac_config_guess="$SHELL $ac_aux_dir/config.guess"  # Please don't use this var.
 ac_config_sub="$SHELL $ac_aux_dir/config.sub"  # Please don't use this var.
 ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
+
+
+
 
 
 am__api_version='1.14'
@@ -3642,8 +3644,11 @@ fi
 # AC_FUNC_FORK
 # AC_CHECK_FUNCS([memset strerror])
 
-#AC_OUTPUT
-ac_config_files="$ac_config_files Makefile src/Makefile doc/Makefile examples/Makefile man/Makefile scripts/Makefile systemd/Makefile"
+
+# AC_CONFIG_FILES([Makefile])
+# AC_CONFIG_FILES([tests/Makefile])
+
+ac_config_files="$ac_config_files Makefile src/Makefile test/Makefile doc/Makefile examples/Makefile man/Makefile scripts/Makefile systemd/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -4382,6 +4387,7 @@ do
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
+    "test/Makefile") CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
     "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
     "examples/Makefile") CONFIG_FILES="$CONFIG_FILES examples/Makefile" ;;
     "man/Makefile") CONFIG_FILES="$CONFIG_FILES man/Makefile" ;;
