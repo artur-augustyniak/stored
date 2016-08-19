@@ -2,7 +2,20 @@
 #include <string.h>
 #include <CUnit/Basic.h>
 
-#include "../src/util/logger.h"
+
+void closelog(void)
+{
+    puts("void closelog(void)\n");
+}
+
+void openlog(const char *ident, int option, int facility)
+{
+    puts("openlog(const char *ident, int option, int facility)\n");
+}
+
+int printf(const char *format, ...){
+    puts(format);
+}
 
 
 /* Pointer to the file used by the tests. */
@@ -14,7 +27,6 @@ static FILE* temp_file = NULL;
  */
 int init_suite1(void)
 {
-   open_log("test");
    if (NULL == (temp_file = fopen("temp.tmp", "w+"))) {
       return -1;
    }
@@ -38,6 +50,14 @@ int clean_suite1(void)
    }
 }
 
+
+void test_msq(void)
+{
+    msg("blah", 1);
+    msg("blah", 1);
+}
+
+
 /* Simple test of fprintf().
  * Writes test data to the temporary file and checks
  * whether the expected number of bytes were written.
@@ -45,8 +65,6 @@ int clean_suite1(void)
 void testFPRINTF(void)
 {
    int i1 = 10;
-       put_notice("sdfsdfsdf");
-
    if (NULL != temp_file) {
       CU_ASSERT(0 == fprintf(temp_file, ""));
       CU_ASSERT(2 == fprintf(temp_file, "Q\n"));
@@ -93,6 +111,7 @@ int main()
    /* NOTE - ORDER IS IMPORTANT - MUST TEST fread() AFTER fprintf() */
    if ((NULL == CU_add_test(pSuite, "test of fprintf()", testFPRINTF))
         || (NULL == CU_add_test(pSuite, "test of fread()", testFREAD))
+        || (NULL == CU_add_test(pSuite, "test of msg()", test_msq))
        )
    {
       CU_cleanup_registry();
