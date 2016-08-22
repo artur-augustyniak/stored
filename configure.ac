@@ -1,12 +1,14 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
+# autoreconf -f -i
 
-# AC_PREREQ([2.69])
 AC_INIT([stored], [0.1], [artur@aaugustyniak.pl])
 AC_CONFIG_SRCDIR([src/stored.c])
 AC_CONFIG_HEADERS([./config/config.h])
-AH_BOTTOM([#include <custom_config.h>])
 AC_CONFIG_AUX_DIR([./config])
+
+AH_BOTTOM([#include <custom_config.h>])
+
 AM_INIT_AUTOMAKE([foreign])
 AM_MAINTAINER_MODE([disable])
 
@@ -34,5 +36,17 @@ AM_CONDITIONAL(HAVE_SYSTEMD, [test -n "$with_systemdsystemunitdir"])
 # AC_FUNC_FORK
 # AC_CHECK_FUNCS([memset strerror])
 
-#AC_OUTPUT
-AC_OUTPUT(Makefile src/Makefile doc/Makefile examples/Makefile man/Makefile scripts/Makefile systemd/Makefile)
+
+# AC_CONFIG_FILES([Makefile])
+# AC_CONFIG_FILES([tests/Makefile])
+
+AC_OUTPUT(          \
+    Makefile            \
+    src/Makefile        \
+    test/Makefile       \
+    doc/Makefile        \
+    examples/Makefile   \
+    man/Makefile        \
+    scripts/Makefile    \
+    systemd/Makefile    \
+)

@@ -3,9 +3,8 @@ Description=Stored Daemon
 Documentation=https://aaugustyniak.pl/stored
 
 [Service]
-Type=forking
+Type=notify
 ExecStart=/usr/local/sbin/stored
-Restart=on-abort
 
 [Install]
 WantedBy=multi-user.target

@@ -88,7 +88,7 @@ void init_mtab(void)
 {
     mtabf = setmntent(_PATH_MOUNTED, "r");
     if(!mtabf){
-        put_error("setmntent fail");
+        ST_msg("setmntent fail", ST_MSG_ERROR);
     }
     runtime_entries_capacity = DEFAULT_NOTIFICATION_CAPACITY;
     entries = calloc(runtime_entries_capacity, sizeof(NE));
@@ -102,7 +102,7 @@ void init_mtab(void)
 void destroy_mtab(void)
 {
     if( 0 == endmntent(mtabf)){
-        put_error("endmntent fail");
+        ST_msg("endmntent fail", ST_MSG_ERROR);
     }
     destory_current_notices();
     free(msg_buf);
@@ -194,21 +194,21 @@ void check_mtab(void)
                     #endif
                     sprintf(buf, msg_fmt, mt->mnt_dir, free_percent);
                     if(FREE_PERCENT_CRIT >= free_percent){
-                        put_crit(buf);
+                        ST_msg(buf, ST_MSG_CRIT);
                     }
                      else if(FREE_PERCENT_WARN >= free_percent){
-                        put_warn(buf);
+                        ST_msg(buf, ST_MSG_WARN);
                      }
                      else
                      {
-                        put_notice(buf);
+                        ST_msg(buf, ST_MSG_NOTICE);
                      }
                 }
             }
         }
         else
         {
-            put_error("statvfs error");
+            ST_msg("statvfs error", ST_MSG_ERROR);
         }
     }
     pthread_mutex_lock(&entries_lock);

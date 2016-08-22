@@ -5,14 +5,16 @@
 autoscan.log
 configure.scan
 autom4te.cache
-config.log
+*.log
+
 config.status
 
 # configure
 Makefile
 config.h
-src/.deps/
+.deps/
 stamp-h1
+.dirstamp
 
 #make
 storectl
@@ -22,3 +24,7 @@ stored
 #gcc
 a.out
 *.gch
+
+#tests
+*_test
+*.trs
