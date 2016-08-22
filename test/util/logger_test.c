@@ -96,7 +96,8 @@ test_ST_msg_sink_type_is_syslog_call_openlog_at_first_call
     int call_times = 10;
 
     ST_sink_type = ST_SYSLOG;
-    for(int i = 0 ; i < call_times ; i++){
+    for(int i = 0 ; i < call_times ; i++)
+    {
         ST_msg(TEST_MSG, ST_MSG_PLAIN);
     }
 

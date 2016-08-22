@@ -32,7 +32,7 @@ void init_checks_loop(void)
     // Listen to netlink socket
     if (bind(pfd.fd, (void *)&nls, sizeof(struct sockaddr_nl)))
     {
-            put_error("Bind failed");
+            ST_msg("Bind failed", ST_MSG_ERROR);
     }
 }
 

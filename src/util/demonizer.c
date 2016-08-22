@@ -36,9 +36,8 @@ void skeleton_daemon()
     {
         close(x);
     }
-    open_log(PACKAGE_NAME);
 #else
-    put_notice("Debug mode.");
+    ST_msg("Debug mode.", ST_MSG_NOTICE);
 #endif
 }
 

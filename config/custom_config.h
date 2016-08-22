@@ -1,4 +1,4 @@
-#define IS_DAEMON
+//#define IS_DAEMON
 
 #define AUTO_CHECK_INTERVAL 10 * 1000
 
