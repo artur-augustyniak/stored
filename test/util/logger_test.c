@@ -89,6 +89,24 @@ test_ST_msg_sink_type_is_stdout_produce_output_to_stdout
     CU_ASSERT(0 == strncmp(buffer, expected_msg, expected_len));
 }
 
+void
+test_ST_msg_sink_type_is_syslog_call_openlog_at_first_call
+(void)
+{
+    int call_times = 10;
+
+    ST_sink_type = ST_SYSLOG;
+    for(int i = 0 ; i < call_times ; i++){
+        ST_msg(TEST_MSG, ST_MSG_PLAIN);
+    }
+
+    CU_ASSERT(1 == openlog_call_counter);
+    CU_ASSERT(1 == closelog_call_counter);
+    CU_ASSERT(1 == atexit_call_counter);
+    CU_ASSERT(call_times == syslog_call_counter);
+}
+
+
 
 int main()
 {
@@ -119,6 +137,11 @@ int main()
             suite_handler,
             "test_ST_msg_sink_type_is_stdout_produce_output_to_stdout",
             test_ST_msg_sink_type_is_stdout_produce_output_to_stdout
+        ))
+        || (NULL == CU_add_test(
+            suite_handler,
+            "test_ST_msg_sink_type_is_syslog_call_openlog_at_first_call",
+            test_ST_msg_sink_type_is_syslog_call_openlog_at_first_call
         ))
    )
    {
