@@ -14,11 +14,6 @@ int main()
 {
     signal(SIGINT, &sigint_handler);
     atexit(&destroy_mtab);
-
-    #ifdef IS_DAEMON
-        atexit(&close_log);
-    #endif
-
     skeleton_daemon();
     put_notice("stored daemon started.");
     init_checks_loop();
