@@ -94,9 +94,10 @@ PROGRAMS = $(bin_PROGRAMS) $(sbin_PROGRAMS)
 am_storectl_OBJECTS = storectl.$(OBJEXT)
 storectl_OBJECTS = $(am_storectl_OBJECTS)
 storectl_LDADD = $(LDADD)
+am__dirstamp = $(am__leading_dot)dirstamp
 am_stored_OBJECTS = stored.$(OBJEXT) mtab_check.$(OBJEXT) \
-	mtab_check_trigger.$(OBJEXT) logger.$(OBJEXT) \
-	demonizer.$(OBJEXT) srv.$(OBJEXT)
+	mtab_check_trigger.$(OBJEXT) util/logger.$(OBJEXT) \
+	util/demonizer.$(OBJEXT) srv/srv.$(OBJEXT)
 stored_OBJECTS = $(am_stored_OBJECTS)
 stored_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -115,10 +116,6 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/./config
 depcomp = $(SHELL) $(top_srcdir)/./config/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
-AM_V_lt = $(am__v_lt_@AM_V@)
-am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
-am__v_lt_0 = --silent
-am__v_lt_1 = 
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 AM_V_CC = $(am__v_CC_@AM_V@)
@@ -247,7 +244,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-
+AUTOMAKE_OPTIONS = subdir-objects
 # what flags you want to pass to the C compiler & linker
 AM_CFLAGS = --pedantic -Wall -std=gnu99 -O3 -lpthread -lsystemd -D_FORTIFY_SOURCE=2 -fstack-protector \
 -Wno-unused-result
@@ -381,6 +378,23 @@ clean-sbinPROGRAMS:
 storectl$(EXEEXT): $(storectl_OBJECTS) $(storectl_DEPENDENCIES) $(EXTRA_storectl_DEPENDENCIES) 
 	@rm -f storectl$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(storectl_OBJECTS) $(storectl_LDADD) $(LIBS)
+util/$(am__dirstamp):
+	@$(MKDIR_P) util
+	@: > util/$(am__dirstamp)
+util/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) util/$(DEPDIR)
+	@: > util/$(DEPDIR)/$(am__dirstamp)
+util/logger.$(OBJEXT): util/$(am__dirstamp) \
+	util/$(DEPDIR)/$(am__dirstamp)
+util/demonizer.$(OBJEXT): util/$(am__dirstamp) \
+	util/$(DEPDIR)/$(am__dirstamp)
+srv/$(am__dirstamp):
+	@$(MKDIR_P) srv
+	@: > srv/$(am__dirstamp)
+srv/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) srv/$(DEPDIR)
+	@: > srv/$(DEPDIR)/$(am__dirstamp)
+srv/srv.$(OBJEXT): srv/$(am__dirstamp) srv/$(DEPDIR)/$(am__dirstamp)
 
 stored$(EXEEXT): $(stored_OBJECTS) $(stored_DEPENDENCIES) $(EXTRA_stored_DEPENDENCIES) 
 	@rm -f stored$(EXEEXT)
@@ -388,73 +402,35 @@ stored$(EXEEXT): $(stored_OBJECTS) $(stored_DEPENDENCIES) $(EXTRA_stored_DEPENDE
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f srv/*.$(OBJEXT)
+	-rm -f util/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/demonizer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logger.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mtab_check.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mtab_check_trigger.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/srv.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/storectl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stored.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@srv/$(DEPDIR)/srv.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/demonizer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/logger.Po@am__quote@
 
 .c.o:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-logger.o: util/logger.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT logger.o -MD -MP -MF $(DEPDIR)/logger.Tpo -c -o logger.o `test -f 'util/logger.c' || echo '$(srcdir)/'`util/logger.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/logger.Tpo $(DEPDIR)/logger.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util/logger.c' object='logger.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o logger.o `test -f 'util/logger.c' || echo '$(srcdir)/'`util/logger.c
-
-logger.obj: util/logger.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT logger.obj -MD -MP -MF $(DEPDIR)/logger.Tpo -c -o logger.obj `if test -f 'util/logger.c'; then $(CYGPATH_W) 'util/logger.c'; else $(CYGPATH_W) '$(srcdir)/util/logger.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/logger.Tpo $(DEPDIR)/logger.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util/logger.c' object='logger.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o logger.obj `if test -f 'util/logger.c'; then $(CYGPATH_W) 'util/logger.c'; else $(CYGPATH_W) '$(srcdir)/util/logger.c'; fi`
-
-demonizer.o: util/demonizer.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT demonizer.o -MD -MP -MF $(DEPDIR)/demonizer.Tpo -c -o demonizer.o `test -f 'util/demonizer.c' || echo '$(srcdir)/'`util/demonizer.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/demonizer.Tpo $(DEPDIR)/demonizer.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util/demonizer.c' object='demonizer.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o demonizer.o `test -f 'util/demonizer.c' || echo '$(srcdir)/'`util/demonizer.c
-
-demonizer.obj: util/demonizer.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT demonizer.obj -MD -MP -MF $(DEPDIR)/demonizer.Tpo -c -o demonizer.obj `if test -f 'util/demonizer.c'; then $(CYGPATH_W) 'util/demonizer.c'; else $(CYGPATH_W) '$(srcdir)/util/demonizer.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/demonizer.Tpo $(DEPDIR)/demonizer.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='util/demonizer.c' object='demonizer.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o demonizer.obj `if test -f 'util/demonizer.c'; then $(CYGPATH_W) 'util/demonizer.c'; else $(CYGPATH_W) '$(srcdir)/util/demonizer.c'; fi`
-
-srv.o: srv/srv.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT srv.o -MD -MP -MF $(DEPDIR)/srv.Tpo -c -o srv.o `test -f 'srv/srv.c' || echo '$(srcdir)/'`srv/srv.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/srv.Tpo $(DEPDIR)/srv.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='srv/srv.c' object='srv.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o srv.o `test -f 'srv/srv.c' || echo '$(srcdir)/'`srv/srv.c
-
-srv.obj: srv/srv.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT srv.obj -MD -MP -MF $(DEPDIR)/srv.Tpo -c -o srv.obj `if test -f 'srv/srv.c'; then $(CYGPATH_W) 'srv/srv.c'; else $(CYGPATH_W) '$(srcdir)/srv/srv.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/srv.Tpo $(DEPDIR)/srv.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='srv/srv.c' object='srv.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o srv.obj `if test -f 'srv/srv.c'; then $(CYGPATH_W) 'srv/srv.c'; else $(CYGPATH_W) '$(srcdir)/srv/srv.c'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -571,6 +547,10 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f srv/$(DEPDIR)/$(am__dirstamp)
+	-rm -f srv/$(am__dirstamp)
+	-rm -f util/$(DEPDIR)/$(am__dirstamp)
+	-rm -f util/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -581,7 +561,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-sbinPROGRAMS \
 	mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR) srv/$(DEPDIR) util/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -627,7 +607,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR) srv/$(DEPDIR) util/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

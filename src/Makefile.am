@@ -1,3 +1,4 @@
+AUTOMAKE_OPTIONS = subdir-objects
 # what flags you want to pass to the C compiler & linker
 AM_CFLAGS = --pedantic -Wall -std=gnu99 -O3 -lpthread -lsystemd -D_FORTIFY_SOURCE=2 -fstack-protector \
 -Wno-unused-result

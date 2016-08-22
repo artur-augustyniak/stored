@@ -18,13 +18,8 @@ int main()
 {
     signal(SIGINT, &sigint_handler);
     atexit(&destroy_mtab);
-
-    #ifdef IS_DAEMON
-        atexit(&close_log);
-    #endif
-
     skeleton_daemon();
-    put_notice("stored daemon started.");
+    ST_msg("stored daemon started.", ST_MSG_NOTICE);
     init_checks_loop();
     init_mtab();
 
@@ -47,6 +42,6 @@ int main()
     checks_loop(&check_mtab);
 
     pthread_join(srv_thread, NULL);
-    put_notice("stored daemon terminated.");
+    ST_msg("stored daemon terminated.", ST_MSG_NOTICE);
     return EXIT_SUCCESS;
 }
