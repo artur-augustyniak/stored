@@ -1,26 +1,26 @@
 #include <config.h>
 #include <syslog.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include "logger.h"
 
-static bool is_active = false;
+#define MSG_FMT "<%i> %s\n"
 
-static void open_log(void)
+ST_SINK ST_sink_type = ST_STDOUT;
+
+
+//static bool is_active = false;
+
+//static void open_log(void)
+//{
+//    atexit(&closelog);
+//    openlog(PACKAGE_NAME, LOG_PID, LOG_DAEMON);
+//}
+
+void ST_msg(char* msg, int type)
 {
-    atexit(&closelog);
-    openlog(PACKAGE_NAME, LOG_PID, LOG_DAEMON);
-}
-
-
-void msg(char* msg, int type)
-{
-    if(!is_active)
-    {
-        open_log();
-        is_active = true;
-    }
-    printf("TYPE: %i - %s\n", type, msg);
+    fprintf(stdout, MSG_FMT, type, msg);
 }
 
 //## MESSS
