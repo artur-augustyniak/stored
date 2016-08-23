@@ -73,6 +73,7 @@ void init_server(void)
 {
     pthread_mutex_init(&mxq,NULL);
     pthread_mutex_lock(&mxq);
+    pthread_mutex_init(&socket_lock,NULL);
 }
 
 void* run_server(void *arg)
@@ -134,12 +135,14 @@ void* run_server(void *arg)
 
     while(!quit(mx))
     {
+        pthread_mutex_unlock(&socket_lock);
         /* wait for a connection request */
         childfd = accept(parentfd, (struct sockaddr *) &clientaddr, &clientlen);
         if (childfd < 0){
             error("ERROR on accept");
             break;
         }
+        pthread_mutex_lock(&socket_lock);
         /* determine who sent the message */
         hostp = gethostbyaddr((const char *)&clientaddr.sin_addr.s_addr, sizeof(clientaddr.sin_addr.s_addr), AF_INET);
         if (hostp == NULL){
@@ -182,7 +185,9 @@ void* run_server(void *arg)
 
 
 void stop_server(void){
+     pthread_mutex_lock(&socket_lock);
      shutdown(childfd, SHUT_RDWR);
      shutdown(parentfd, SHUT_RDWR);
+     pthread_mutex_unlock(&socket_lock);
      pthread_mutex_unlock(&mxq);
 }

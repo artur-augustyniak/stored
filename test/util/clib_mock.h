@@ -24,9 +24,3 @@ int atexit(void (*f)(void))
 void syslog(int priority, const char *format, ...){
     syslog_call_counter++;
 }
-
-
-
-//int printf(const char *format, ...){
-//    puts(format);
-//}

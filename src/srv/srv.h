@@ -3,6 +3,7 @@
 #include <pthread.h>
 
 pthread_mutex_t mxq; /* mutex used as quit flag */
+pthread_mutex_t socket_lock;
 
 void init_server(void);
 
