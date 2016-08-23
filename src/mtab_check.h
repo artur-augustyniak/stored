@@ -1,22 +1,23 @@
 #ifndef MTAB_CHECK_H
 #define MTAB_CHECK_H
 #include<pthread.h>
-
 #include <linux/limits.h>
-  typedef struct NOTICED_ENTRY{
+
+typedef struct ST_NOTICED_ENTRY
+{
     char path[PATH_MAX];
     int free_percent;
-  } NOTICED_ENTRY, *NE;
+}
+ST_NOTICED_ENTRY, *ST_NE;
 
-  int runtime_entries_capacity;
-  /*@only@*/ NE *entries;
-  int entries_count;
-  pthread_mutex_t entries_lock;
+pthread_mutex_t ST_entries_lock;
 
-  void init_mtab(void);
-  void destroy_mtab(void);
-  void check_mtab(void);
-  void report_list(FILE *stream);
-  void destory_current_notices(void);
+__BEGIN_DECLS
+
+void ST_check_mtab(void);
+
+void ST_report_list(FILE *stream);
+
+__END_DECLS
 
 #endif

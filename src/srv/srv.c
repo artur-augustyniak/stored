@@ -68,20 +68,29 @@ static int quit(pthread_mutex_t *mtx)
   }
   return 1;
 }
-
-void init_server(void)
+static pthread_mutex_t mxq; /* mutex used as quit flag */
+static pthread_mutex_t socket_lock;
+static void init_server(void)
 {
+//    pthread_t srv_thread;
+//    init_server();
+//    sigset_t set;
+//    sigemptyset(&set);
+//    sigaddset(&set, SIGPIPE);
+//    pthread_sigmask(SIG_BLOCK, &set, NULL);
+//    pthread_create(&srv_thread, NULL, &run_server, &mxq);
     pthread_mutex_init(&mxq,NULL);
     pthread_mutex_lock(&mxq);
     pthread_mutex_init(&socket_lock,NULL);
+
 }
 
-void* run_server(void *arg)
+void* ST_start_server(void)
 {
+    //if not active
+    init_server();
 
     /* variables for connection management */
-
-
     int portno = SERVER_PORT;            /* port to listen on */
     socklen_t  clientlen;         /* byte size of client's address */
     struct hostent *hostp; /* client host info */
@@ -131,9 +140,7 @@ void* run_server(void *arg)
     */
     clientlen = sizeof(clientaddr);
 
-    pthread_mutex_t *mx = arg;
-
-    while(!quit(mx))
+    while(!quit(&mxq))
     {
         pthread_mutex_unlock(&socket_lock);
         /* wait for a connection request */
@@ -175,7 +182,7 @@ void* run_server(void *arg)
         {
             fgets(buf, BUFSIZE, stream);
         }
-        report_list(stream);
+        ST_report_list(stream);
         /* clean up */
         fclose(stream);
         close(childfd);
@@ -184,10 +191,11 @@ void* run_server(void *arg)
 }
 
 
-void stop_server(void){
+void ST_stop_server(void){
      pthread_mutex_lock(&socket_lock);
      shutdown(childfd, SHUT_RDWR);
      shutdown(parentfd, SHUT_RDWR);
      pthread_mutex_unlock(&socket_lock);
      pthread_mutex_unlock(&mxq);
+//     pthread_join(srv_thread, NULL);
 }

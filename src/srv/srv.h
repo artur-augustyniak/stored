@@ -1,14 +1,12 @@
 #ifndef SRV_H
 #define SRV_H
-#include <pthread.h>
 
-pthread_mutex_t mxq; /* mutex used as quit flag */
-pthread_mutex_t socket_lock;
+__BEGIN_DECLS
 
-void init_server(void);
+void* ST_start_server(void);
 
-void* run_server(void *);
+void ST_stop_server(void);
 
-void stop_server(void);
+__END_DECLS
 
 #endif

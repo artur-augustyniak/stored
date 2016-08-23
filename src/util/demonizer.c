@@ -11,7 +11,7 @@
 #define HOOKS_NUM  4
 
 ST_OP_MODE ST_op_mode = ST_NOTIFY;
-exit_hook hooks[HOOKS_NUM] = {NULL};
+static ST_exit_hook hooks[HOOKS_NUM] = {NULL};
 static int curr_hook = 0;
 static bool demonized = false;
 

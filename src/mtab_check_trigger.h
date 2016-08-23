@@ -1,10 +1,12 @@
 #ifndef MTAB_CHECK_TRIGGER_H
 #define MTAB_CHECK_TRIGGER_H
 
-void init_checks_loop(void);
+__BEGIN_DECLS
 
-void break_checks_loop(void);
+void ST_checks_loop(void (*check_func)(void));
 
-void checks_loop(void (*check_func)(void));
+void ST_break_checks_loop(void);
+
+__END_DECLS
 
 #endif

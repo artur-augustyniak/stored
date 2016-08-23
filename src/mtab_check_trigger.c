@@ -13,12 +13,13 @@
 #include "mtab_check_trigger.h"
 #include "util/logger.h"
 
-static bool active = true;
+static bool active = false;
 static struct sockaddr_nl nls;
 static struct pollfd pfd;
+
 static char buf[512];
 
-void init_checks_loop(void)
+static void init_checks_loop(void)
 {
     // Open hotplug event netlink socket
     memset(&nls,0,sizeof(struct sockaddr_nl));
@@ -36,14 +37,18 @@ void init_checks_loop(void)
     }
 }
 
-void break_checks_loop(void)
+void ST_break_checks_loop(void)
 {
     active = false;
 }
 
 
-void checks_loop(void (*check_func)(void))
+void ST_checks_loop(void (*check_func)(void))
 {
+        if(!active){
+            active = true;
+            init_checks_loop();
+        }
         while (-1!=poll(&pfd, 1, AUTO_CHECK_INTERVAL) && active) {
                 check_func();
                 /* Ignore recved data */

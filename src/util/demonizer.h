@@ -8,7 +8,7 @@ typedef enum _ST_OP_MODE
 }
 ST_OP_MODE;
 
-typedef void (*exit_hook)(void);
+typedef void (*ST_exit_hook)(void);
 
 extern ST_OP_MODE ST_op_mode;
 
