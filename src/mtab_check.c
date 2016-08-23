@@ -86,6 +86,7 @@ void destory_current_notices(void){
 
 void init_mtab(void)
 {
+    atexit(&destroy_mtab);
     mtabf = setmntent(_PATH_MOUNTED, "r");
     if(!mtabf){
         ST_msg("setmntent fail", ST_MSG_ERROR);

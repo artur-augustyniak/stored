@@ -2,7 +2,7 @@
 
 AUTOMAKE_OPTIONS = subdir-objects
 # what flags you want to pass to the C compiler & linker
-AM_CFLAGS = --pedantic -Wall -std=gnu99 -O0 -g -lcunit
+AM_CFLAGS = --pedantic -Wall -std=gnu99 -O0 -g -lcunit -lsystemd
 AM_LDFLAGS =
 
 # SCRIPTS
@@ -11,10 +11,15 @@ TESTS = \
     misc/dummy.sh
 
 # COMPILE on make check
-check_PROGRAMS = util_logger_test
+check_PROGRAMS = util_logger_test util_demonizer_test
 util_logger_test_SOURCES =  \
     util/logger_test.c      \
     ../src/util/logger.c    \
     ../src/util/logger.h
+
+util_demonizer_test_SOURCES =  \
+    util/demonizer_test.c      \
+    ../src/util/demonizer.c    \
+    ../src/util/demonizer.h
 
 TESTS += $(check_PROGRAMS)

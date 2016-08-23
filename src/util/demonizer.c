@@ -2,62 +2,91 @@
 #include <unistd.h>
 #include <signal.h>
 #include <stdlib.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include "logger.h"
-#include "mtab_check_trigger.h"
-#include "srv/srv.h"
 #include <stdbool.h>
-#if defined(HAVE_SYSTEMD)
 #include <systemd/sd-daemon.h>
-#endif
+#include "demonizer.h"
+#include "logger.h"
 
-void skeleton_daemon()
+#define HOOKS_NUM  4
+
+ST_OP_MODE ST_op_mode = ST_NOTIFY;
+exit_hook hooks[HOOKS_NUM] = {NULL};
+static int curr_hook = 0;
+static bool demonized = false;
+
+static void sigint_handler(int sig)
 {
-    bool _sd_booted = sd_booted();
-    if(_sd_booted)
+    for(int i = 0; i < HOOKS_NUM; i++)
     {
-        //sd_notify(1, "READY=1");
+        if(NULL != hooks[i])
+        {
+            hooks[i]();
+        }
+    }
+}
+
+int ST_add_sigint_hook(void (*func)(void))
+{
+    if(curr_hook < HOOKS_NUM){
+        hooks[curr_hook++] = func;
+        return 0;
+    }
+    else{
+        return 1;
+    }
+}
+
+void ST_demonize(void)
+{
+    if(demonized)
+    {
         return;
     }
-    else
+    signal(SIGINT, &sigint_handler);
+
+    /* Catch, ignore and handle signals */
+    //TODO: Implement a working signal handler */
+    signal(SIGCHLD, SIG_IGN);
+    signal(SIGHUP, SIG_IGN);
+    signal(SIGPIPE, SIG_IGN);
+
+    bool _sd_booted = sd_booted();
+    pid_t pid;
+    switch (ST_op_mode)
     {
-    #ifdef IS_DAEMON
-        pid_t pid;
-        pid = fork();
-        if (pid < 0)
-            exit(EXIT_FAILURE);
-        if (pid > 0)
-            exit(EXIT_SUCCESS);
-        if (setsid() < 0)
-            exit(EXIT_FAILURE);
-        /* Catch, ignore and handle signals */
-        //TODO: Implement a working signal handler */
-        signal(SIGCHLD, SIG_IGN);
-        signal(SIGHUP, SIG_IGN);
-        signal(SIGPIPE, SIG_IGN);
-        pid = fork();
-        if (pid < 0)
-            exit(EXIT_FAILURE);
-        if (pid > 0)
-            exit(EXIT_SUCCESS);
-        umask(066);
-        chdir("/tmp");
-        int x;
-        for (x = sysconf(_SC_OPEN_MAX); x>0; x--)
-        {
-            close(x);
-        }
-//        open_log(PACKAGE_NAME);
-    #else
-        ST_msg("Debug mode.", ST_MSG_NOTICE);
-    #endif
+        case ST_NOTIFY:
+            if(_sd_booted)
+            {
+                sd_notify(1, "READY=1");
+            }
+        break;
+        case ST_FORKING:
+            pid = fork();
+            if (pid < 0)
+                exit(EXIT_FAILURE);
+            if (pid > 0)
+                exit(EXIT_SUCCESS);
+            if (setsid() < 0)
+                exit(EXIT_FAILURE);
+            pid = fork();
+            if (pid < 0)
+                exit(EXIT_FAILURE);
+            if (pid > 0)
+                exit(EXIT_SUCCESS);
+            umask(066);
+            chdir("/tmp");
+            int x;
+            for (x = sysconf(_SC_OPEN_MAX); x>0; x--)
+            {
+                close(x);
+            }
+        break;
+        default:
+            ST_msg("Unsupported operation type", ST_MSG_ERROR);
     }
-
+    demonized = true;
 }
 
-void sigint_handler(int sig) {
-	break_checks_loop();
-	stop_server();
-}
+
 
