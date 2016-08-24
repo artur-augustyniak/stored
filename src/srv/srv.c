@@ -194,7 +194,7 @@ void ST_stop_server(void){
      pthread_mutex_lock(&socket_lock);
      shutdown(childfd, SHUT_RDWR);
      shutdown(parentfd, SHUT_RDWR);
-     pthread_mutex_unlock(&socket_lock);
      pthread_mutex_unlock(&mxq);
+     pthread_mutex_unlock(&socket_lock);
      pthread_join(srv_thread, NULL);
 }
