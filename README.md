@@ -17,3 +17,9 @@ $ ./configure && make
 #systemctl start stored.service
 # ./test/create_filled_fs.sh <num fs> <pause sec.>`.
 ```
+
+## Tests
+```
+$ cd test
+$ make check
+```

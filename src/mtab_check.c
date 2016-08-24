@@ -126,14 +126,14 @@ static size_t approx_resp_buffers_size()
 
 void ST_report_list(FILE *stream)
 {
-    pthread_mutex_lock(&ST_entries_lock);
+
     if(!active){
         active = true;
         init_mtab();
     }
     size_t row_len = 0;
     int msg_len = 0;
-
+    pthread_mutex_lock(&ST_entries_lock);
     int buffer_approx = approx_resp_buffers_size();
     //Buffers halving
     char *tmp;
@@ -181,7 +181,7 @@ void ST_report_list(FILE *stream)
 
 
 void ST_check_mtab(void)
-{   pthread_mutex_lock(&ST_entries_lock);
+{
     if(!active){
         active = true;
         init_mtab();
@@ -189,7 +189,6 @@ void ST_check_mtab(void)
     rewind(mtabf);
     M_TAB* mt;
     int free_percent;
-
     entries_count = 0;
     while((mt = getmntent(mtabf)))
     {
@@ -203,9 +202,6 @@ void ST_check_mtab(void)
                     append_notice(entries_count, mt->mnt_dir, free_percent);
                     entries_count++;
                     //__sync_add_and_fetch(&entries_count, 1);
-                    #ifndef IS_DAEMON
-                        printf("event time: %u on: %s\n", (unsigned int)time(0), mt->mnt_dir);
-                    #endif
                     sprintf(buf, msg_fmt, mt->mnt_dir, free_percent);
                     if(FREE_PERCENT_CRIT >= free_percent){
                         ST_msg(buf, ST_MSG_CRIT);
@@ -225,7 +221,7 @@ void ST_check_mtab(void)
             ST_msg("statvfs error", ST_MSG_ERROR);
         }
     }
-
+    pthread_mutex_lock(&ST_entries_lock);
     //Halving down
     if(entries_count > 0 && entries_count == (int) (runtime_entries_capacity-1)/ 4)
     {
