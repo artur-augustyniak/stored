@@ -1,6 +1,5 @@
 /* vim: set tabstop=2 expandtab: */
 #include <config.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include "util/logger.h"
 #include "util/demonizer.h"

@@ -126,6 +126,10 @@ static size_t approx_resp_buffers_size()
 
 void ST_report_list(FILE *stream)
 {
+    if(!active){
+        active = true;
+        init_mtab();
+    }
     size_t row_len = 0;
     int msg_len = 0;
     pthread_mutex_lock(&ST_entries_lock);
@@ -197,6 +201,7 @@ void ST_check_mtab(void)
                 {
                     append_notice(entries_count, mt->mnt_dir, free_percent);
                     entries_count++;
+                    //__sync_add_and_fetch(&entries_count, 1);
                     #ifndef IS_DAEMON
                         printf("event time: %u on: %s\n", (unsigned int)time(0), mt->mnt_dir);
                     #endif

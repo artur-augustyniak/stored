@@ -1,16 +1,10 @@
 #include <config.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
-#include <sys/types.h>
-#include <linux/types.h>
 #include <linux/netlink.h>
-#include "mtab_check.h"
-#include "mtab_check_trigger.h"
 #include "util/logger.h"
 
 static bool active = false;

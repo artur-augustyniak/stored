@@ -70,26 +70,13 @@ static int quit(pthread_mutex_t *mtx)
 }
 static pthread_mutex_t mxq; /* mutex used as quit flag */
 static pthread_mutex_t socket_lock;
-static void init_server(void)
+static pthread_t srv_thread;
+static sigset_t set;
+
+
+
+static void* serve(void* none)
 {
-//    pthread_t srv_thread;
-//    init_server();
-//    sigset_t set;
-//    sigemptyset(&set);
-//    sigaddset(&set, SIGPIPE);
-//    pthread_sigmask(SIG_BLOCK, &set, NULL);
-//    pthread_create(&srv_thread, NULL, &run_server, &mxq);
-    pthread_mutex_init(&mxq,NULL);
-    pthread_mutex_lock(&mxq);
-    pthread_mutex_init(&socket_lock,NULL);
-
-}
-
-void* ST_start_server(void)
-{
-    //if not active
-    init_server();
-
     /* variables for connection management */
     int portno = SERVER_PORT;            /* port to listen on */
     socklen_t  clientlen;         /* byte size of client's address */
@@ -190,6 +177,18 @@ void* ST_start_server(void)
     return NULL;
 }
 
+void ST_start_server(void)
+{
+    //if not active
+    sigemptyset(&set);
+    sigaddset(&set, SIGPIPE);
+    pthread_sigmask(SIG_BLOCK, &set, NULL);
+
+    pthread_mutex_init(&mxq,NULL);
+    pthread_mutex_lock(&mxq);
+    pthread_mutex_init(&socket_lock,NULL);
+    pthread_create(&srv_thread, NULL, &serve, &mxq);
+}
 
 void ST_stop_server(void){
      pthread_mutex_lock(&socket_lock);
@@ -197,5 +196,5 @@ void ST_stop_server(void){
      shutdown(parentfd, SHUT_RDWR);
      pthread_mutex_unlock(&socket_lock);
      pthread_mutex_unlock(&mxq);
-//     pthread_join(srv_thread, NULL);
+     pthread_join(srv_thread, NULL);
 }

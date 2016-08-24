@@ -1,5 +1,6 @@
 #ifndef MTAB_CHECK_H
 #define MTAB_CHECK_H
+#include <stdio.h>
 #include<pthread.h>
 #include <linux/limits.h>
 
@@ -12,12 +13,8 @@ ST_NOTICED_ENTRY, *ST_NE;
 
 pthread_mutex_t ST_entries_lock;
 
-__BEGIN_DECLS
-
 void ST_check_mtab(void);
 
 void ST_report_list(FILE *stream);
-
-__END_DECLS
 
 #endif

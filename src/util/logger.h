@@ -13,8 +13,6 @@
 typedef enum _ST_SINK {ST_SYSLOG, ST_STDOUT} ST_SINK;
 extern ST_SINK ST_sink_type;
 
-__BEGIN_DECLS
 void ST_msg(char* msg, int type);
-__END_DECLS
 
 #endif
