@@ -26,7 +26,6 @@ int cfg_err(const char* section, config_t *cfg)
 
 int main(int argc, char *argv[])
 {
-    char * config_file_path = CONFIG_FILE_PATH;
     config_t cfg;
     config_setting_t *core_group;
     config_setting_t *server_group;
@@ -42,8 +41,7 @@ int main(int argc, char *argv[])
                 ST_sink_type = ST_SYSLOG;
                 break;
             case 'f':
-                config_file_path = optarg;
-                if(! config_read_file(&cfg, config_file_path))
+                if(! config_read_file(&cfg, optarg))
                 {
                         fprintf(stderr,
                             "%s:%d - %s\n",
