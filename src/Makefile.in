@@ -246,7 +246,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 # what flags you want to pass to the C compiler & linker
-AM_CFLAGS = --pedantic -Wall -std=gnu99 -O3 -lpthread -lsystemd -D_FORTIFY_SOURCE=2 -fstack-protector \
+AM_CFLAGS = --pedantic -Wall -std=gnu99 -O3 -lpthread -lsystemd -lconfig -D_FORTIFY_SOURCE=2 -fstack-protector \
 -Wno-unused-result
 
 AM_LDFLAGS = 

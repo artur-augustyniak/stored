@@ -13,6 +13,8 @@ static struct pollfd pfd;
 
 static char buf[512];
 
+int ST_timeout = AUTO_CHECK_INTERVAL;
+
 static void init_checks_loop(void)
 {
     // Open hotplug event netlink socket
@@ -43,7 +45,7 @@ void ST_checks_loop(void (*check_func)(void))
             active = true;
             init_checks_loop();
         }
-        while (-1!=poll(&pfd, 1, AUTO_CHECK_INTERVAL) && active) {
+        while (-1!=poll(&pfd, 1, ST_timeout) && active) {
                 check_func();
                 /* Ignore recved data */
                 recv(pfd.fd, buf, sizeof(buf), MSG_DONTWAIT);

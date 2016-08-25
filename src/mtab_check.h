@@ -11,6 +11,10 @@ typedef struct ST_NOTICED_ENTRY
 }
 ST_NOTICED_ENTRY, *ST_NE;
 
+extern int ST_notice_level;
+extern int ST_warn_level;
+extern int ST_crit_level;
+
 pthread_mutex_t ST_entries_lock;
 
 void ST_check_mtab(void);

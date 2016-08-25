@@ -1,7 +1,3 @@
-/*
- * Based on Dave O'Hallarons, Carnegie Mellon tiny.c
- * https://www.cs.cmu.edu/afs/cs/academic/class/15213-f08/www/code/tiny/
- */
 #include <config.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -24,25 +20,24 @@
 #define BUFSIZE 1024
 #define MAXERRS 16
 
-extern char **environ; /* the environment */
+static int parentfd;
+static int childfd;
+static pthread_mutex_t mxq;
+static pthread_mutex_t socket_lock;
+static pthread_t srv_thread;
+static sigset_t set;
+static in_addr_t address;
 
-char *as = "501";
+int ST_enabled = SERVER_ENABLED;
+int ST_port = SERVER_PORT;
+const char *ST_bind_addr = BIND_ADDR;
 
-static int parentfd;          /* parent socket */
-static int childfd;           /* child socket */
-
-
-/*
- * error - wrapper for perror used for bad syscalls
- */
 static void error(char *msg)
 {
   perror(msg);
+  exit(1);
 }
 
-/*
- * cerror - returns an error message to the client
- */
 static void cerror(FILE *stream, char *cause, char *err, char *shortmsg, char *longmsg
 )
 {
@@ -68,17 +63,11 @@ static int quit(pthread_mutex_t *mtx)
   }
   return 1;
 }
-static pthread_mutex_t mxq; /* mutex used as quit flag */
-static pthread_mutex_t socket_lock;
-static pthread_t srv_thread;
-static sigset_t set;
-
-
 
 static void* serve(void* none)
 {
     /* variables for connection management */
-    int portno = SERVER_PORT;            /* port to listen on */
+    int portno = ST_port;            /* port to listen on */
     socklen_t  clientlen;         /* byte size of client's address */
     struct hostent *hostp; /* client host info */
     char *hostaddrp;       /* dotted decimal host addr string */
@@ -108,7 +97,7 @@ static void* serve(void* none)
     /* bind port to socket */
     bzero((char *) &serveraddr, sizeof(serveraddr));
     serveraddr.sin_family = AF_INET;
-    serveraddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    serveraddr.sin_addr.s_addr = address;
     serveraddr.sin_port = htons((unsigned short)portno);
     if (bind(parentfd, (struct sockaddr *) &serveraddr, sizeof(serveraddr)) < 0)
     {
@@ -169,8 +158,9 @@ static void* serve(void* none)
         {
             fgets(buf, BUFSIZE, stream);
         }
+
         ST_report_list(stream);
-        /* clean up */
+
         fclose(stream);
         close(childfd);
     }
@@ -180,6 +170,8 @@ static void* serve(void* none)
 void ST_start_server(void)
 {
     //if not active
+    address = inet_addr(ST_bind_addr);
+
     sigemptyset(&set);
     sigaddset(&set, SIGPIPE);
     pthread_sigmask(SIG_BLOCK, &set, NULL);

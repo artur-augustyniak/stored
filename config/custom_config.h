@@ -1,6 +1,8 @@
-#define AUTO_CHECK_INTERVAL 1 * 1000
-
 #define DEFAULT_NOTIFICATION_CAPACITY 12
+
+#define CONFIG_FILE_PATH "stored.cfg"
+
+#define AUTO_CHECK_INTERVAL 120 * 1000
 
 #define FREE_PERCENT_NOTICE 30
 
@@ -8,4 +10,8 @@
 
 #define FREE_PERCENT_CRIT 5
 
-#define SERVER_PORT 8081
+#define SERVER_ENABLED 1
+
+#define SERVER_PORT 1531
+
+#define BIND_ADDR "127.0.0.1"

@@ -43,6 +43,10 @@ static int entries_count;
 static int runtime_entries_capacity;
 static/*@only@*/ ST_NE *entries;
 
+int ST_notice_level = FREE_PERCENT_NOTICE;
+int ST_warn_level = FREE_PERCENT_WARN;
+int ST_crit_level = FREE_PERCENT_CRIT;
+
 static void append_notice(int pos, char *path, int percent){
     pthread_mutex_lock(&ST_entries_lock);
     //Halving up
@@ -197,16 +201,16 @@ void ST_check_mtab(void)
             if(0 < s.f_blocks)
             {
                 free_percent = (int)(100.0 /((s.f_blocks - (s.f_bfree - s.f_bavail)) * s.f_bsize) * (s.f_bavail * s.f_bsize));
-                if(FREE_PERCENT_NOTICE >= free_percent)
+                if(ST_notice_level  >= free_percent)
                 {
                     append_notice(entries_count, mt->mnt_dir, free_percent);
                     entries_count++;
                     //__sync_add_and_fetch(&entries_count, 1);
                     sprintf(buf, msg_fmt, mt->mnt_dir, free_percent);
-                    if(FREE_PERCENT_CRIT >= free_percent){
+                    if(ST_crit_level  >= free_percent){
                         ST_msg(buf, ST_MSG_CRIT);
                     }
-                     else if(FREE_PERCENT_WARN >= free_percent){
+                     else if(ST_warn_level  >= free_percent){
                         ST_msg(buf, ST_MSG_WARN);
                      }
                      else
