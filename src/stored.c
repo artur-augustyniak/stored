@@ -99,12 +99,16 @@ int main(int argc, char *argv[])
     }
 
     ST_add_sigint_hook(&ST_break_checks_loop);
-    ST_add_sigint_hook(&ST_stop_server);
+    if(ST_enabled)
+        ST_add_sigint_hook(&ST_stop_server);
     ST_demonize();
+
     if(ST_enabled)
         ST_start_server();
     ST_msg("daemon started.", ST_MSG_NOTICE);
+
     ST_checks_loop(&ST_check_mtab);
+
     if(ST_enabled)
         ST_stop_server();
     config_destroy(&cfg);
