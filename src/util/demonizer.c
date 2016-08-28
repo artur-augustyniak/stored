@@ -7,13 +7,20 @@
 #include <systemd/sd-daemon.h>
 #include "demonizer.h"
 #include "logger.h"
-
+#include "mtab_check_trigger.h"
+#include "mtab_check.h"
 #define HOOKS_NUM  4
 
 ST_OP_MODE ST_op_mode = ST_NOTIFY;
 static ST_exit_hook hooks[HOOKS_NUM] = {NULL};
 static int curr_hook = 0;
 static bool demonized = false;
+
+static void sighup_handler(int sig)
+{
+    ST_checks_loop(&ST_check_mtab);
+    ST_msg("SIGHUP", 0);
+}
 
 static void sigint_handler(int sig)
 {
@@ -43,13 +50,12 @@ void ST_demonize(void)
     {
         return;
     }
-    signal(SIGINT, &sigint_handler);
 
-    /* Catch, ignore and handle signals */
-    //TODO: Implement a working signal handler */
-    signal(SIGCHLD, SIG_IGN);
-    signal(SIGHUP, SIG_IGN);
-    signal(SIGPIPE, SIG_IGN);
+    signal(SIGINT, &sigint_handler);
+    signal(SIGHUP, &sighup_handler);
+
+//    signal(SIGCHLD, SIG_IGN);
+//    signal(SIGPIPE, SIG_IGN);
 
     bool _sd_booted = sd_booted();
     pid_t pid;
