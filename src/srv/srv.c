@@ -66,6 +66,12 @@ static int quit(pthread_mutex_t *mtx)
 
 static void* serve(void* none)
 {
+
+        sigemptyset(&set);
+        sigaddset(&set, SIGPIPE);
+        sigaddset(&set, SIGHUP);
+        pthread_sigmask(SIG_BLOCK, &set, NULL);
+
     /* variables for connection management */
     int portno = ST_port;            /* port to listen on */
     socklen_t  clientlen;         /* byte size of client's address */
@@ -171,11 +177,6 @@ void ST_start_server(void)
 {
     //if not active
     address = inet_addr(ST_bind_addr);
-
-    sigemptyset(&set);
-    sigaddset(&set, SIGPIPE);
-    sigaddset(&set, SIGHUP);
-    pthread_sigmask(SIG_BLOCK, &set, NULL);
 
     pthread_mutex_init(&mxq,NULL);
     pthread_mutex_lock(&mxq);

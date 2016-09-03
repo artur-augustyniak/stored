@@ -12,7 +12,7 @@ make_fs(){
         mount -t ext4 -o loop ./virtualfs${c} ./vfs${c}
         rm -Rf ./vfs${c}/test && dd if=/dev/zero of=./vfs${c}/test bs=1024 count=800
         sleep ${pause}
-        curl -i '127.0.0.1:8081/'
+        curl -i '127.0.0.1:1531/'
     done
     umount ./vfs*
     rm -Rf ./virtualfs* ./vfs*

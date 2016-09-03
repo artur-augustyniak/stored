@@ -6,6 +6,10 @@
 #include <sys/socket.h>
 #include <linux/netlink.h>
 #include "util/logger.h"
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 
 static bool active = false;
 static struct sockaddr_nl nls;
@@ -38,16 +42,32 @@ void ST_break_checks_loop(void)
     active = false;
 }
 
-
 void ST_checks_loop(void (*check_func)(void))
 {
         if(!active){
             active = true;
             init_checks_loop();
         }
-        while (-1!=poll(&pfd, 1, ST_timeout) && active) {
-                check_func();
-                /* Ignore recved data */
-                recv(pfd.fd, buf, sizeof(buf), MSG_DONTWAIT);
+
+        while(active)
+        {
+            switch (poll(&pfd, 1, ST_timeout))
+            {
+                case -1:{
+                    if (errno == EINTR)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        active = false;
+                        perror("unknown poll error");
+                        exit(1);
+                    }
+                }
+            }
+            check_func();
+            /* Ignore recved data */
+            recv(pfd.fd, buf, sizeof(buf), MSG_DONTWAIT);
         }
 }

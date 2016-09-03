@@ -1,6 +1,11 @@
-#include 'config.h'
+#include <stdlib.h>
+#include <unistd.h>
+#include "config.h"
+#include "mtab_check_trigger.h"
+#include "mtab_check.h"
+#include "srv/srv.h"
 
-int cfg_err(const char* section, config_t *cfg)
+static int cfg_err(const char* section, config_t *cfg)
 {
     fprintf(stderr,
         "no proper %s section in %s\n",
