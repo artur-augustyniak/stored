@@ -76,7 +76,7 @@ test_ST_msg_sink_type_is_stdout_produce_output_to_stdout
 
     start_stdout_redir();
     /* interaction */
-    ST_msg(TEST_MSG, ST_MSG_PLAIN);
+    ST_logger_msg(TEST_MSG, ST_MSG_PLAIN);
     stop_stdout_redir();
 
     rewind(temp_file);
@@ -98,7 +98,7 @@ test_ST_msg_sink_type_is_syslog_call_openlog_at_first_call
     ST_sink_type = ST_SYSLOG;
     for(int i = 0 ; i < call_times ; i++)
     {
-        ST_msg(TEST_MSG, ST_MSG_PLAIN);
+        ST_logger_msg(TEST_MSG, ST_MSG_PLAIN);
     }
 
     CU_ASSERT(1 == openlog_call_counter);

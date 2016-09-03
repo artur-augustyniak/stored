@@ -18,7 +18,7 @@ static bool demonized = false;
 
 static void sighup_handler(int sig)
 {
-    ST_msg("SIGHUP", 0);
+    ST_logger_msg("SIGHUP", 0);
 }
 
 static void sigint_handler(int sig)
@@ -87,7 +87,7 @@ void ST_demonize(void)
             }
         break;
         default:
-            ST_msg("Unsupported operation type", ST_MSG_ERROR);
+            ST_logger_msg("Unsupported operation type", ST_MSG_ERROR);
     }
     demonized = true;
 }

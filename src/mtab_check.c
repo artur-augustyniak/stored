@@ -93,7 +93,7 @@ static void destory_current_notices(void){
 static void destroy_mtab(void)
 {
     if( 0 == endmntent(mtabf)){
-        ST_msg("endmntent fail", ST_MSG_ERROR);
+        ST_logger_msg("endmntent fail", ST_MSG_ERROR);
     }
     destory_current_notices();
     free(msg_buf);
@@ -106,7 +106,7 @@ static void init_mtab(void)
     atexit(&destroy_mtab);
     mtabf = setmntent(_PATH_MOUNTED, "r");
     if(!mtabf){
-        ST_msg("setmntent fail", ST_MSG_ERROR);
+        ST_logger_msg("setmntent fail", ST_MSG_ERROR);
     }
     runtime_entries_capacity = DEFAULT_NOTIFICATION_CAPACITY;
     entries = calloc(runtime_entries_capacity, sizeof(ST_NE));
@@ -208,21 +208,21 @@ void ST_check_mtab(void)
                     //__sync_add_and_fetch(&entries_count, 1);
                     sprintf(buf, msg_fmt, mt->mnt_dir, free_percent);
                     if(ST_crit_level  >= free_percent){
-                        ST_msg(buf, ST_MSG_CRIT);
+                        ST_logger_msg(buf, ST_MSG_CRIT);
                     }
                      else if(ST_warn_level  >= free_percent){
-                        ST_msg(buf, ST_MSG_WARN);
+                        ST_logger_msg(buf, ST_MSG_WARN);
                      }
                      else
                      {
-                        ST_msg(buf, ST_MSG_NOTICE);
+                        ST_logger_msg(buf, ST_MSG_NOTICE);
                      }
                 }
             }
         }
         else
         {
-            ST_msg("statvfs error", ST_MSG_ERROR);
+            ST_logger_msg("statvfs error", ST_MSG_ERROR);
         }
     }
     pthread_mutex_lock(&ST_entries_lock);

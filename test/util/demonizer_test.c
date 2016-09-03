@@ -8,7 +8,7 @@
 #include "../src/util/demonizer.h"
 #include "clib_mock.h"
 
-void ST_msg(char* msg, int type)
+void ST_logger_msg(char* msg, int type)
 {
 }
 
