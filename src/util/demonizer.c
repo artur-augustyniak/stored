@@ -18,7 +18,6 @@ static bool demonized = false;
 
 static void sighup_handler(int sig)
 {
-    ST_checks_loop(&ST_check_mtab);
     ST_msg("SIGHUP", 0);
 }
 
@@ -53,9 +52,8 @@ void ST_demonize(void)
 
     signal(SIGINT, &sigint_handler);
     signal(SIGHUP, &sighup_handler);
-
-//    signal(SIGCHLD, SIG_IGN);
-//    signal(SIGPIPE, SIG_IGN);
+    signal(SIGCHLD, SIG_IGN);
+    signal(SIGPIPE, SIG_IGN);
 
     bool _sd_booted = sd_booted();
     pid_t pid;

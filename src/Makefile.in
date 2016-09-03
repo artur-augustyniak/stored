@@ -97,7 +97,8 @@ storectl_LDADD = $(LDADD)
 am__dirstamp = $(am__leading_dot)dirstamp
 am_stored_OBJECTS = stored.$(OBJEXT) mtab_check.$(OBJEXT) \
 	mtab_check_trigger.$(OBJEXT) util/logger.$(OBJEXT) \
-	util/demonizer.$(OBJEXT) srv/srv.$(OBJEXT)
+	util/demonizer.$(OBJEXT) util/config.$(OBJEXT) \
+	srv/srv.$(OBJEXT)
 stored_OBJECTS = $(am_stored_OBJECTS)
 stored_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -253,6 +254,7 @@ AM_LDFLAGS =
 stored_SOURCES = stored.c mtab_check.h mtab_check.c mtab_check_trigger.h mtab_check_trigger.c \
 util/logger.h util/logger.c \
 util/demonizer.h util/demonizer.c \
+util/config.h util/config.c \
 srv/srv.h srv/srv.c
 
 storectl_SOURCES = storectl.c
@@ -388,6 +390,8 @@ util/logger.$(OBJEXT): util/$(am__dirstamp) \
 	util/$(DEPDIR)/$(am__dirstamp)
 util/demonizer.$(OBJEXT): util/$(am__dirstamp) \
 	util/$(DEPDIR)/$(am__dirstamp)
+util/config.$(OBJEXT): util/$(am__dirstamp) \
+	util/$(DEPDIR)/$(am__dirstamp)
 srv/$(am__dirstamp):
 	@$(MKDIR_P) srv
 	@: > srv/$(am__dirstamp)
@@ -413,6 +417,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/storectl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stored.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@srv/$(DEPDIR)/srv.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/config.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/demonizer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/logger.Po@am__quote@
 

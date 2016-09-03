@@ -1,7 +1,19 @@
 /* vim: set tabstop=2 expandtab: */
-#include<sdio.h>
+#include<stdio.h>
+#include <signal.h>
+
+static void sighup_handler(int sig)
+{
+    printf("sighup_handler\n");
+}
+
 
 void main(void)
 {
- printf("blah");             
+    signal(SIGINT, &sigint_handler);
+    signal(SIGHUP, &sighup_handler);
+    for(;;){
+        sleep(10);
+    }
+    printf("blah");
 }

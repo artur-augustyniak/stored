@@ -11,5 +11,6 @@ bin_PROGRAMS = storectl
 stored_SOURCES = stored.c mtab_check.h mtab_check.c mtab_check_trigger.h mtab_check_trigger.c \
 util/logger.h util/logger.c \
 util/demonizer.h util/demonizer.c \
+util/config.h util/config.c \
 srv/srv.h srv/srv.c
 storectl_SOURCES = storectl.c
