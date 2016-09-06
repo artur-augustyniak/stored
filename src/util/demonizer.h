@@ -12,8 +12,12 @@ typedef void (*ST_exit_hook)(void);
 
 extern ST_OP_MODE ST_op_mode;
 
+int ST_init_demonizer(ST_OP_MODE mode);
+
 int ST_add_sigint_hook(void (*func)(void));
 
 void ST_demonize(void);
+
+void ST_destroy_demonizer(void);
 
 #endif

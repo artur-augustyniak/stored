@@ -9,7 +9,12 @@
 #define ST_MSG_ERROR   3
 #define ST_MSG_CRIT    4
 
-typedef enum _ST_SINK {ST_SYSLOG, ST_STDOUT} ST_SINK;
+typedef enum _ST_SINK
+{
+    ST_SYSLOG,
+    ST_STDOUT
+}
+ST_SINK;
 
 void ST_logger_init(const char* name, ST_SINK type);
 
