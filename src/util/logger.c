@@ -9,7 +9,7 @@
 #define MSG_FMT "<%i> %s\n"
 
 static sds daemon_name;
-static ST_SINK sink_type = ST_STDOUT;
+static ST_SINK sink_type;
 
 void ST_logger_init(const char* name, ST_SINK type)
 {

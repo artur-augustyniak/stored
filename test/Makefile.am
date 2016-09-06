@@ -15,7 +15,9 @@ check_PROGRAMS = util_logger_test util_demonizer_test
 util_logger_test_SOURCES =  \
     util/logger_test.c      \
     ../src/util/logger.c    \
-    ../src/util/logger.h
+    ../src/util/logger.h    \
+    ../src/util/sds.c    \
+     ../src/util/sds.h
 
 util_demonizer_test_SOURCES =  \
     util/demonizer_test.c      \

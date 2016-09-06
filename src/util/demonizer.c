@@ -7,8 +7,8 @@
 #include <systemd/sd-daemon.h>
 #include "demonizer.h"
 #include "logger.h"
-#include "mtab_check_trigger.h"
-#include "mtab_check.h"
+//#include "mtab_check_trigger.h"
+//#include "mtab_check.h"
 #define HOOKS_NUM  4
 
 ST_OP_MODE ST_op_mode = ST_NOTIFY;

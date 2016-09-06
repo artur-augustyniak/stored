@@ -97,7 +97,7 @@ am_util_demonizer_test_OBJECTS = util/demonizer_test.$(OBJEXT) \
 util_demonizer_test_OBJECTS = $(am_util_demonizer_test_OBJECTS)
 util_demonizer_test_LDADD = $(LDADD)
 am_util_logger_test_OBJECTS = util/logger_test.$(OBJEXT) \
-	../src/util/logger.$(OBJEXT)
+	../src/util/logger.$(OBJEXT) ../src/util/sds.$(OBJEXT)
 util_logger_test_OBJECTS = $(am_util_logger_test_OBJECTS)
 util_logger_test_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -459,7 +459,9 @@ TESTS = static/flawfind.sh misc/dummy.sh $(check_PROGRAMS)
 util_logger_test_SOURCES = \
     util/logger_test.c      \
     ../src/util/logger.c    \
-    ../src/util/logger.h
+    ../src/util/logger.h    \
+    ../src/util/sds.c    \
+     ../src/util/sds.h
 
 util_demonizer_test_SOURCES = \
     util/demonizer_test.c      \
@@ -527,6 +529,8 @@ util/logger_test.$(OBJEXT): util/$(am__dirstamp) \
 	util/$(DEPDIR)/$(am__dirstamp)
 ../src/util/logger.$(OBJEXT): ../src/util/$(am__dirstamp) \
 	../src/util/$(DEPDIR)/$(am__dirstamp)
+../src/util/sds.$(OBJEXT): ../src/util/$(am__dirstamp) \
+	../src/util/$(DEPDIR)/$(am__dirstamp)
 
 util_logger_test$(EXEEXT): $(util_logger_test_OBJECTS) $(util_logger_test_DEPENDENCIES) $(EXTRA_util_logger_test_DEPENDENCIES) 
 	@rm -f util_logger_test$(EXEEXT)
@@ -542,6 +546,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@../src/util/$(DEPDIR)/demonizer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@../src/util/$(DEPDIR)/logger.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@../src/util/$(DEPDIR)/sds.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/demonizer_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/logger_test.Po@am__quote@
 

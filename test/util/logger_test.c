@@ -1,15 +1,11 @@
-#include <stdio.h>
-#include <string.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <CUnit/Basic.h>
 #include "../src/util/logger.h"
 #include "clib_mock.h"
 
 #define TMP_EXCHANGE_FILE  "logger_suite.tmp"
-
+#define TEST_NAME  "Blah"
 #define TEST_MSG  "Blah"
 #define OUTPUT_TEST_MSG  "Blah"
 
@@ -59,25 +55,23 @@ int clean_logger_suite(void)
 }
 
 void
-test_default_sink_type_is_stdout
+test_sink_type_is_stdout_produce_output_to_stdout
 (void)
 {
-    CU_ASSERT(ST_STDOUT == ST_sink_type);
-}
-
-void
-test_ST_msg_sink_type_is_stdout_produce_output_to_stdout
-(void)
-{
+    ST_logger_init(TEST_NAME, ST_STDOUT);
     size_t test_buff_size = 10;
     char buffer[test_buff_size];
     char expected_msg[] = OUTPUT_TEST_MSG_WITH_TYPE(ST_MSG_PLAIN);
     size_t expected_len = strlen(expected_msg);
 
     start_stdout_redir();
+
     /* interaction */
     ST_logger_msg(TEST_MSG, ST_MSG_PLAIN);
+
     stop_stdout_redir();
+
+    ST_logger_destroy();
 
     rewind(temp_file);
     CU_ASSERT(expected_len + 1 == fread(
@@ -90,24 +84,24 @@ test_ST_msg_sink_type_is_stdout_produce_output_to_stdout
 }
 
 void
-test_ST_msg_sink_type_is_syslog_call_openlog_at_first_call
+test_sink_type_is_syslog_call_openlog_at_creation
 (void)
 {
     int call_times = 10;
 
-    ST_sink_type = ST_SYSLOG;
+    ST_logger_init(TEST_NAME, ST_SYSLOG);
+
     for(int i = 0 ; i < call_times ; i++)
     {
         ST_logger_msg(TEST_MSG, ST_MSG_PLAIN);
     }
 
+    ST_logger_destroy();
+
     CU_ASSERT(1 == openlog_call_counter);
     CU_ASSERT(1 == closelog_call_counter);
-    CU_ASSERT(1 == atexit_call_counter);
     CU_ASSERT(call_times == syslog_call_counter);
 }
-
-
 
 int main()
 {
@@ -129,20 +123,16 @@ int main()
         return CU_get_error();
     }
 
-   if( (NULL == CU_add_test(
+   if(
+        (NULL == CU_add_test(
             suite_handler,
-            "test_default_sink_type_is_stdout",
-             test_default_sink_type_is_stdout)
-        )
-        || (NULL == CU_add_test(
-            suite_handler,
-            "test_ST_msg_sink_type_is_stdout_produce_output_to_stdout",
-            test_ST_msg_sink_type_is_stdout_produce_output_to_stdout
+            "test_sink_type_is_stdout_produce_output_to_stdout",
+            test_sink_type_is_stdout_produce_output_to_stdout
         ))
         || (NULL == CU_add_test(
             suite_handler,
-            "test_ST_msg_sink_type_is_syslog_call_openlog_at_first_call",
-            test_ST_msg_sink_type_is_syslog_call_openlog_at_first_call
+            "test_sink_type_is_syslog_call_openlog_at_creation",
+            test_sink_type_is_syslog_call_openlog_at_creation
         ))
    )
    {
