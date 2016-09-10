@@ -7,12 +7,14 @@
 #include <CUnit/Basic.h>
 #include <signal.h>
 #include "../src/util/demonizer.h"
+#include "../src/util/logger.h"
 #include "clib_mock.h"
 
 static int msg_type;
 
 void ST_logger_msg(char* msg, int type)
 {
+
     msg_type = type;
 }
 
@@ -55,7 +57,7 @@ int clean_suite(void)
       return -1;
    }
    else {
-      //unlink(TMP_EXCHANGE_FILE);
+      unlink(TMP_EXCHANGE_FILE);
       return 0;
    }
 }
@@ -67,7 +69,7 @@ test_wo_init_demonize_log_error
 (void)
 {
     ST_demonize();
-    CU_ASSERT(1234 == msg_type);
+    CU_ASSERT(ST_MSG_ERROR == msg_type);
 }
 
 int main()

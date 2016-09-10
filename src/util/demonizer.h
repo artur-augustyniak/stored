@@ -1,5 +1,6 @@
 #ifndef DEMONIZER_H
 #define DEMONIZER_H
+#include <signal.h>
 
 typedef enum _ST_OP_MODE
 {

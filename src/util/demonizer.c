@@ -1,6 +1,6 @@
 /* vim: set tabstop=2 expandtab: */
 #include <unistd.h>
-#include <signal.h>
+
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <stdbool.h>
@@ -10,7 +10,7 @@
 
 #define HOOKS_NUM  4
 
-static ST_OP_MODE op_mode;
+static ST_OP_MODE op_mode = -1;
 static bool demonized = false;
 static ST_signal_hook sigint_hooks[HOOKS_NUM] = {NULL};
 static ST_signal_hook sighup_hooks[HOOKS_NUM] = {NULL};
@@ -90,6 +90,7 @@ void ST_demonize(void)
 
     bool _sd_booted = sd_booted();
     pid_t pid;
+
     switch (op_mode)
     {
         case ST_NOTIFY:
