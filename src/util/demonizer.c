@@ -1,4 +1,4 @@
-#include <config.h>
+/* vim: set tabstop=2 expandtab: */
 #include <unistd.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -7,40 +7,73 @@
 #include <systemd/sd-daemon.h>
 #include "demonizer.h"
 #include "logger.h"
-#include "mtab_check_trigger.h"
-#include "mtab_check.h"
+
 #define HOOKS_NUM  4
 
 static ST_OP_MODE op_mode;
-static ST_exit_hook hooks[HOOKS_NUM] = {NULL};
-static int curr_hook = 0;
 static bool demonized = false;
+static ST_signal_hook sigint_hooks[HOOKS_NUM] = {NULL};
+static ST_signal_hook sighup_hooks[HOOKS_NUM] = {NULL};
+static int int_hook_idx = 0;
+static int hup_hook_idx = 0;
+
+void ST_init_demonizer(ST_OP_MODE mode)
+{
+    op_mode = mode;
+}
 
 static void sighup_handler(int sig)
 {
-    ST_logger_msg("SIGHUP", 0);
+    for(int i = 0; i < HOOKS_NUM; i++)
+    {
+        if(NULL != sighup_hooks[i])
+        {
+            sighup_hooks[i]();
+        }
+    }
 }
 
 static void sigint_handler(int sig)
 {
     for(int i = 0; i < HOOKS_NUM; i++)
     {
-        if(NULL != hooks[i])
+        if(NULL != sigint_hooks[i])
         {
-            hooks[i]();
+            sigint_hooks[i]();
         }
     }
 }
 
-int ST_add_sigint_hook(void (*func)(void))
+int ST_add_signal_hook(int sig, void (*signal_hook)(void))
 {
-    if(curr_hook < HOOKS_NUM){
-        hooks[curr_hook++] = func;
-        return 0;
+    switch (sig)
+    {
+        case SIGINT:
+            if(int_hook_idx < HOOKS_NUM)
+            {
+                sigint_hooks[int_hook_idx++] = signal_hook;
+                 return 0;
+            }
+            else
+            {
+                return 1;
+            }
+        break;
+        case SIGHUP:
+            if(hup_hook_idx < HOOKS_NUM)
+            {
+                sighup_hooks[hup_hook_idx++] = signal_hook;
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
+        break;
+        default:
+            ST_logger_msg("Unsupported signal type", ST_MSG_ERROR);
     }
-    else{
-        return 1;
-    }
+    return 1;
 }
 
 void ST_demonize(void)
@@ -57,7 +90,7 @@ void ST_demonize(void)
 
     bool _sd_booted = sd_booted();
     pid_t pid;
-    switch (ST_op_mode)
+    switch (op_mode)
     {
         case ST_NOTIFY:
             if(_sd_booted)
@@ -92,5 +125,8 @@ void ST_demonize(void)
     demonized = true;
 }
 
-
+void ST_destroy_demonizer(void)
+{
+    //unsupported
+}
 

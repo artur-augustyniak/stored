@@ -5,11 +5,15 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <CUnit/Basic.h>
+#include <signal.h>
 #include "../src/util/demonizer.h"
 #include "clib_mock.h"
 
+static int msg_type;
+
 void ST_logger_msg(char* msg, int type)
 {
+    msg_type = type;
 }
 
 #define TMP_EXCHANGE_FILE  "demonizer_suite.tmp"
@@ -51,7 +55,7 @@ int clean_suite(void)
       return -1;
    }
    else {
-      unlink(TMP_EXCHANGE_FILE);
+      //unlink(TMP_EXCHANGE_FILE);
       return 0;
    }
 }
@@ -59,11 +63,11 @@ int clean_suite(void)
 
 
 void
-test_default_op_mode_is_notify
+test_wo_init_demonize_log_error
 (void)
 {
     ST_demonize();
-    CU_ASSERT(ST_NOTIFY == ST_op_mode);
+    CU_ASSERT(1234 == msg_type);
 }
 
 int main()
@@ -88,8 +92,8 @@ int main()
 
    if( (NULL == CU_add_test(
             suite_handler,
-            "test_default_op_mode_is_notify",
-             test_default_op_mode_is_notify)
+            "test_wo_init_demonize_log_error",
+             test_wo_init_demonize_log_error)
         )
    )
    {

@@ -8,13 +8,11 @@ typedef enum _ST_OP_MODE
 }
 ST_OP_MODE;
 
-typedef void (*ST_exit_hook)(void);
+typedef void (*ST_signal_hook)(void);
 
-extern ST_OP_MODE ST_op_mode;
+void ST_init_demonizer(ST_OP_MODE mode);
 
-int ST_init_demonizer(ST_OP_MODE mode);
-
-int ST_add_sigint_hook(void (*func)(void));
+int ST_add_signal_hook(int sig, void (*signal_hook)(void));
 
 void ST_demonize(void);
 
