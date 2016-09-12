@@ -18,7 +18,9 @@ ST_CONF;
 
 ST_CONF curr_config;
 
-void ST_init_config();
+char *cfg_file_path;
+
+void ST_init_config(const char *path);
 
 int ST_read_conf();
 

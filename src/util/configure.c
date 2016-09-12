@@ -8,6 +8,7 @@
 
 static config_t cfg;
 
+
 static int cfg_err(const char* section, config_t *cfg)
 {
     fprintf(stderr,
@@ -19,8 +20,9 @@ static int cfg_err(const char* section, config_t *cfg)
     return(EXIT_FAILURE);
 }
 
-void ST_init_config(void)
+void ST_init_config(const char *path)
 {
+    cfg_file_path = path;
     config_init(&cfg);
 }
 
@@ -29,7 +31,7 @@ int ST_read_conf(void)
 {
     config_setting_t *core_group;
     config_setting_t *server_group;
-    if(! config_read_file(&cfg, optarg))
+    if(! config_read_file(&cfg, cfg_file_path))
     {
         fprintf(stderr,
             "%s:%d - %s\n",

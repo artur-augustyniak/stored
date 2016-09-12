@@ -17,6 +17,7 @@
 #include <arpa/inet.h>
 #include "srv.h"
 #include "mtab_check.h"
+#include "util/configure.h"
 
 #define BUFSIZE 1024
 #define MAXERRS 16
@@ -176,6 +177,10 @@ static void* serve(void* none)
 
 void ST_start_server(void)
 {
+    if(!curr_config.server_enabled)
+    {
+        return;
+    }
     //if not active
     address = inet_addr(ST_bind_addr);
 
@@ -186,6 +191,10 @@ void ST_start_server(void)
 }
 
 void ST_stop_server(void){
+    if(!curr_config.server_enabled)
+    {
+        return;
+    }
      pthread_mutex_lock(&socket_lock);
      shutdown(childfd, SHUT_RDWR);
      shutdown(parentfd, SHUT_RDWR);

@@ -11,6 +11,26 @@
 #include "srv/srv.h"
 #include <getopt.h>
 
+void blah(void)
+{
+    int read_cfg_status;
+    printf("sighup\n");
+    ST_break_checks_loop();
+    //ST_init_config(cfg_file_path);
+
+
+
+    read_cfg_status = ST_read_conf();
+    if(! EXIT_SUCCESS == read_cfg_status)
+    {
+        return;
+    }
+    ST_destroy_config();
+
+    ST_logger_msg("daemon restarted.", ST_MSG_NOTICE);
+    ST_checks_loop(&ST_check_mtab);
+}
+
 int main(int argc, char *argv[])
 {
     int read_cfg_status;
@@ -24,7 +44,7 @@ int main(int argc, char *argv[])
                 ST_init_demonizer(ST_FORKING);
                 break;
             case 'f': // config file
-                ST_init_config();
+                ST_init_config(optarg);
                 ST_logger_init(PACKAGE_NAME, ST_STDOUT);
                 ST_init_demonizer(ST_NOTIFY);
                 read_cfg_status = ST_read_conf();
@@ -46,22 +66,16 @@ int main(int argc, char *argv[])
 
 
     ST_add_signal_hook(SIGINT, &ST_break_checks_loop);
-//    if(ST_enabled)
-//        ST_add_sigint_hook(&ST_stop_server);
-
+    ST_add_signal_hook(SIGINT, &ST_stop_server);
+    ST_add_signal_hook(SIGHUP, &blah);
     ST_demonize();
-
-//    if(ST_enabled)
-//        ST_start_server();
+    ST_start_server();
     ST_logger_msg("daemon started.", ST_MSG_NOTICE);
 
     ST_checks_loop(&ST_check_mtab);
 
-//    if(ST_enabled)
-//        ST_stop_server();
-
+    ST_stop_server();
     ST_logger_msg("daemon terminated.", ST_MSG_NOTICE);
-
 
     ST_destroy_demonizer();
     ST_logger_destroy();
