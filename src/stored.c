@@ -11,13 +11,9 @@
 #include "srv/srv.h"
 #include <getopt.h>
 
-
 int main(int argc, char *argv[])
 {
-    config_t cfg;
-    config_init(&cfg);
     int read_cfg_status;
-
     int opt;
     while ((opt = getopt(argc, argv, "bhf:")) != -1)
     {
@@ -28,13 +24,15 @@ int main(int argc, char *argv[])
                 ST_init_demonizer(ST_FORKING);
                 break;
             case 'f': // config file
+                ST_init_config();
                 ST_logger_init(PACKAGE_NAME, ST_STDOUT);
                 ST_init_demonizer(ST_NOTIFY);
-                read_cfg_status = read_conf(&cfg);
+                read_cfg_status = ST_read_conf();
                 if(! EXIT_SUCCESS == read_cfg_status)
                 {
                     return read_cfg_status;
                 }
+                ST_destroy_config();
                 break;
             case 'h':
                 fprintf(stderr, "Usage: %s [-bh] [-f <path/config.cfg>]\n", argv[0]);
@@ -61,7 +59,7 @@ int main(int argc, char *argv[])
 
 //    if(ST_enabled)
 //        ST_stop_server();
-    config_destroy(&cfg);
+
     ST_logger_msg("daemon terminated.", ST_MSG_NOTICE);
 
 

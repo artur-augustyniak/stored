@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <linux/netlink.h>
 #include "util/logger.h"
+#include "util/configure.h"
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,7 +52,7 @@ void ST_checks_loop(void (*check_func)(void))
 
         while(active)
         {
-            switch (poll(&pfd, 1, ST_timeout))
+            switch (poll(&pfd, 1, curr_config.timeout))
             {
                 case -1:{
                     if (errno == EINTR)
@@ -66,6 +67,7 @@ void ST_checks_loop(void (*check_func)(void))
                     }
                 }
             }
+            ST_logger_msg("check", ST_MSG_ERROR);
             check_func();
             /* Ignore recved data */
             recv(pfd.fd, buf, sizeof(buf), MSG_DONTWAIT);

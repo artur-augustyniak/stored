@@ -8,7 +8,7 @@
 
 #define FREE_PERCENT_CRIT 5
 
-#define SERVER_ENABLED 1
+#define SERVER_ENABLED 0
 
 #define SERVER_PORT 1531
 
