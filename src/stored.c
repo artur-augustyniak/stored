@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <stdbool.h>
+#include <string.h>
 #include "util/configure.h"
 #include "util/logger.h"
 #include "util/demonizer.h"
@@ -17,13 +18,13 @@ static char *conf_path;
 
 static void reload (void)
 {
-    printf("sighup\n");
+    ST_logger_msg("daemon reloading.", ST_MSG_NOTICE);
     ST_break_checks_loop();
 }
 
 static void stop(void)
 {
-    printf("sigint\n");
+    ST_logger_msg("daemon terminating.", ST_MSG_NOTICE);
     active = false;
     ST_break_checks_loop();
     //ST_add_signal_hook(SIGINT, &ST_stop_server);
@@ -41,7 +42,6 @@ int main(int argc, char *argv[])
             conf_path = strdup(optarg);
             if(conf_path)
             {
-
                 ST_logger_init(PACKAGE_NAME, ST_STDOUT);
                 ST_init_demonizer(ST_NOTIFY);
                 ST_add_signal_hook(SIGINT, &stop);
@@ -54,9 +54,11 @@ int main(int argc, char *argv[])
                     if(conf)
                     {
                         ST_checks_loop(&ST_check_mtab, conf->timeout);
-                        printf("%0x\n", conf);
-                        printf("%s\n", conf->bind_address);
-
+                    }
+                    else
+                    {
+                        active = false;
+                        ST_logger_msg("configuration error.", ST_MSG_CRIT);
                     }
                     ST_destroy_config();
                 }
