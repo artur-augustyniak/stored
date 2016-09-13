@@ -16,6 +16,6 @@ ST_CONF, *ST_conf;
 
 ST_conf ST_config(const char *fpath);
 
-void ST_destroy(ST_conf c);
+void ST_destroy_config();
 
 #endif

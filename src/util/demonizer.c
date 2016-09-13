@@ -1,6 +1,5 @@
 /* vim: set tabstop=2 expandtab: */
 #include <unistd.h>
-
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <stdbool.h>

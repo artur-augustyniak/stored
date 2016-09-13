@@ -43,7 +43,7 @@ void ST_break_checks_loop(void)
     active = false;
 }
 
-void ST_checks_loop(void (*check_func)(void))
+void ST_checks_loop(void (*check_func)(void), int timeout)
 {
         if(!active){
             active = true;
@@ -52,7 +52,7 @@ void ST_checks_loop(void (*check_func)(void))
 
         while(active)
         {
-            switch (poll(&pfd, 1, /*curr_config.timeout*/ 100))
+            switch (poll(&pfd, 1, timeout))
             {
                 case -1:{
                     if (errno == EINTR)
@@ -72,4 +72,5 @@ void ST_checks_loop(void (*check_func)(void))
             /* Ignore recved data */
             recv(pfd.fd, buf, sizeof(buf), MSG_DONTWAIT);
         }
+        close(pfd.fd);
 }

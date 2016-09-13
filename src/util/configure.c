@@ -51,7 +51,6 @@ static int read_conf(const char *fpath)
     {
         return cfg_err("core");
     }
-    const char *str;
     server_group = config_lookup(&cfg, "stored.server");
     if(server_group != NULL)
     {
@@ -83,8 +82,8 @@ ST_conf ST_config(const char *fpath)
     return NULL;
 }
 
-void ST_destroy(ST_conf c)
+void ST_destroy_config()
 {
-    //config_destroy(&cfg);
-    free(c);
+    config_destroy(&cfg);
+    free(conf_handle);
 }
