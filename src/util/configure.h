@@ -1,8 +1,6 @@
 /* vim: set tabstop=2 expandtab: */
-#ifndef CONFIG_H
-#define CONFIG_H
-
-#define IP_V4_LEN 16
+#ifndef CONFIGURE_H
+#define CONFIGURE_H
 
 typedef struct _ST_CONF
 {
@@ -12,18 +10,12 @@ typedef struct _ST_CONF
     int crit_level;
     int server_enabled;
     int server_port;
-    char bind_address[IP_V4_LEN];
+    const char *bind_address;
 }
-ST_CONF;
+ST_CONF, *ST_conf;
 
-ST_CONF curr_config;
+ST_conf ST_config(const char *fpath);
 
-char *cfg_file_path;
-
-void ST_init_config(const char *path);
-
-int ST_read_conf();
-
-void ST_destroy_config();
+void ST_destroy(ST_conf c);
 
 #endif

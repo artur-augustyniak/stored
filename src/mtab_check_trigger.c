@@ -52,7 +52,7 @@ void ST_checks_loop(void (*check_func)(void))
 
         while(active)
         {
-            switch (poll(&pfd, 1, curr_config.timeout))
+            switch (poll(&pfd, 1, /*curr_config.timeout*/ 100))
             {
                 case -1:{
                     if (errno == EINTR)
