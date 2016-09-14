@@ -53,7 +53,10 @@ int main(int argc, char *argv[])
                     conf = ST_config(optarg);
                     if(conf)
                     {
+                        ST_init_check_mtab(conf);
                         ST_checks_loop(&ST_check_mtab, conf->timeout);
+                        ST_destroy_check_mtab();
+
                     }
                     else
                     {

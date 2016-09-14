@@ -5,11 +5,12 @@
 #include <string.h>
 #include <time.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <pthread.h>
+#include <linux/limits.h>
 #include <sys/statvfs.h>
 #include "mtab_check.h"
 #include "util/logger.h"
-
-typedef struct mntent M_TAB;
 
 #define MSG_FMT "%s has %i percent space left."
 #define MSG_FMT_LEN 30
@@ -30,22 +31,29 @@ typedef struct mntent M_TAB;
  PERCENT_AND_COMMA_SIZE + JSON_MSG_HEADER_FMT_LEN + \
  JSON_MSG_FOOTER_FMT_LEN
 
+
+typedef struct ST_NOTICED_ENTRY
+{
+    char path[PATH_MAX];
+    int free_percent;
+}
+ST_NOTICED_ENTRY, *ST_NE;
+
+typedef struct mntent M_TAB;
+
 static bool active = false;
 const static char msg_fmt[] = MSG_FMT;
 static FILE* mtabf;
 static struct statvfs s;
 static char buf[MSG_LEN];
-
 static char *msg_buf;
 static char *msg_rows_buf;
 static int runtime_msg_bufs_size;
 static int entries_count;
 static int runtime_entries_capacity;
 static/*@only@*/ ST_NE *entries;
-
-int ST_notice_level = FREE_PERCENT_NOTICE;
-int ST_warn_level = FREE_PERCENT_WARN;
-int ST_crit_level = FREE_PERCENT_CRIT;
+static pthread_mutex_t ST_entries_lock;
+static ST_conf config;
 
 static void append_notice(int pos, char *path, int percent){
     pthread_mutex_lock(&ST_entries_lock);
@@ -90,20 +98,20 @@ static void destory_current_notices(void){
     pthread_mutex_unlock(&ST_entries_lock);
 }
 
-static void destroy_mtab(void)
+static size_t approx_resp_buffers_size()
 {
-    if( 0 == endmntent(mtabf)){
-        ST_logger_msg("endmntent fail", ST_MSG_ERROR);
+    size_t size = (JSON_MSG_ROW_FMT_LEN + PERCENT_AND_COMMA_SIZE) * entries_count;
+    for(int i = 0; i < entries_count; i++)
+    {
+        size += strlen(entries[i]->path) + 1;
     }
-    destory_current_notices();
-    free(msg_buf);
-    free(msg_rows_buf);
-    pthread_mutex_destroy(&ST_entries_lock);
+    return size + JSON_MSG_HEADER_FMT_LEN + JSON_MSG_FOOTER_FMT_LEN;
 }
 
-static void init_mtab(void)
+void ST_init_check_mtab(ST_conf conf)
 {
-    atexit(&destroy_mtab);
+    config = conf;
+    active = true;
     mtabf = setmntent(_PATH_MOUNTED, "r");
     if(!mtabf){
         ST_logger_msg("setmntent fail", ST_MSG_ERROR);
@@ -118,23 +126,76 @@ static void init_mtab(void)
 }
 
 
-static size_t approx_resp_buffers_size()
+void ST_check_mtab(void)
 {
-    size_t size = (JSON_MSG_ROW_FMT_LEN + PERCENT_AND_COMMA_SIZE) * entries_count;
-    for(int i = 0; i < entries_count; i++)
-    {
-        size += strlen(entries[i]->path) + 1;
+    if(!active){
+        ST_logger_msg("mtab_check not initialized.", ST_MSG_CRIT);
+        exit(EXIT_FAILURE);
     }
-    return size + JSON_MSG_HEADER_FMT_LEN + JSON_MSG_FOOTER_FMT_LEN;
+    rewind(mtabf);
+    M_TAB* mt;
+    int free_percent;
+    entries_count = 0;
+    while((mt = getmntent(mtabf)))
+    {
+        if(0 == statvfs(mt->mnt_dir, &s))
+        {
+            if(0 < s.f_blocks)
+            {
+                free_percent = (int)(100.0 /((s.f_blocks - (s.f_bfree - s.f_bavail)) * s.f_bsize) * (s.f_bavail * s.f_bsize));
+                if(config->notice_level  >= free_percent)
+                {
+                    append_notice(entries_count, mt->mnt_dir, free_percent);
+                    entries_count++;
+                    //__sync_add_and_fetch(&entries_count, 1);
+                    sprintf(buf, msg_fmt, mt->mnt_dir, free_percent);
+                    if(config->crit_level  >= free_percent){
+                        ST_logger_msg(buf, ST_MSG_CRIT);
+                    }
+                     else if(config->warn_level  >= free_percent){
+                        ST_logger_msg(buf, ST_MSG_WARN);
+                     }
+                     else
+                     {
+                        ST_logger_msg(buf, ST_MSG_NOTICE);
+                     }
+                }
+            }
+        }
+        else
+        {
+            ST_logger_msg("statvfs error", ST_MSG_ERROR);
+        }
+    }
+    pthread_mutex_lock(&ST_entries_lock);
+    //Halving down
+    if(entries_count > 0 && entries_count == (int) (runtime_entries_capacity-1)/ 4)
+    {
+        ST_NE *tmp_entries;
+        int old_capacity = runtime_entries_capacity;
+        runtime_entries_capacity /=2;
+        for(int i = runtime_entries_capacity; i < old_capacity; i++)
+        {
+            if(NULL != entries[i])
+            {
+                free(entries[i]);
+                entries[i] = NULL;
+            }
+        }
+        tmp_entries = (ST_NE* )realloc(entries, runtime_entries_capacity * sizeof(ST_NE));
+        entries = tmp_entries;
+    }
+    pthread_mutex_unlock(&ST_entries_lock);
 }
+
 
 void ST_report_list(FILE *stream)
 {
 
-    if(!active){
-        active = true;
-        init_mtab();
-    }
+//    if(!active){
+//        active = true;
+//        init_mtab();
+//    }
     size_t row_len = 0;
     int msg_len = 0;
     pthread_mutex_lock(&ST_entries_lock);
@@ -183,66 +244,13 @@ void ST_report_list(FILE *stream)
     pthread_mutex_unlock(&ST_entries_lock);
 }
 
-
-void ST_check_mtab(void)
+void ST_destroy_check_mtab(void)
 {
-    if(!active){
-        active = true;
-        init_mtab();
+    if( 0 == endmntent(mtabf)){
+        ST_logger_msg("endmntent fail", ST_MSG_ERROR);
     }
-    rewind(mtabf);
-    M_TAB* mt;
-    int free_percent;
-    entries_count = 0;
-    while((mt = getmntent(mtabf)))
-    {
-        if(0 == statvfs(mt->mnt_dir, &s))
-        {
-            if(0 < s.f_blocks)
-            {
-                free_percent = (int)(100.0 /((s.f_blocks - (s.f_bfree - s.f_bavail)) * s.f_bsize) * (s.f_bavail * s.f_bsize));
-                if(ST_notice_level  >= free_percent)
-                {
-                    append_notice(entries_count, mt->mnt_dir, free_percent);
-                    entries_count++;
-                    //__sync_add_and_fetch(&entries_count, 1);
-                    sprintf(buf, msg_fmt, mt->mnt_dir, free_percent);
-                    if(ST_crit_level  >= free_percent){
-                        ST_logger_msg(buf, ST_MSG_CRIT);
-                    }
-                     else if(ST_warn_level  >= free_percent){
-                        ST_logger_msg(buf, ST_MSG_WARN);
-                     }
-                     else
-                     {
-                        ST_logger_msg(buf, ST_MSG_NOTICE);
-                     }
-                }
-            }
-        }
-        else
-        {
-            ST_logger_msg("statvfs error", ST_MSG_ERROR);
-        }
-    }
-    pthread_mutex_lock(&ST_entries_lock);
-    //Halving down
-    if(entries_count > 0 && entries_count == (int) (runtime_entries_capacity-1)/ 4)
-    {
-        ST_NE *tmp_entries;
-        int old_capacity = runtime_entries_capacity;
-        runtime_entries_capacity /=2;
-        for(int i = runtime_entries_capacity; i < old_capacity; i++)
-        {
-            if(NULL != entries[i])
-            {
-                free(entries[i]);
-                entries[i] = NULL;
-            }
-        }
-        tmp_entries = (ST_NE* )realloc(entries, runtime_entries_capacity * sizeof(ST_NE));
-        entries = tmp_entries;
-    }
-    pthread_mutex_unlock(&ST_entries_lock);
+    destory_current_notices();
+    free(msg_buf);
+    free(msg_rows_buf);
+    pthread_mutex_destroy(&ST_entries_lock);
 }
-

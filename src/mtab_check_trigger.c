@@ -1,24 +1,18 @@
-#include <config.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <linux/netlink.h>
 #include "util/logger.h"
-#include "util/configure.h"
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 
 static bool active = false;
 static struct sockaddr_nl nls;
 static struct pollfd pfd;
-
 static char buf[512];
-
-int ST_timeout = AUTO_CHECK_INTERVAL;
 
 static void init_checks_loop(void)
 {
