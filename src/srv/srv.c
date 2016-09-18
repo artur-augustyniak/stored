@@ -22,6 +22,25 @@
 #define BUFSIZE 1024
 #define MAXERRS 16
 
+#define JSON_MSG_ROW_FMT "\"%s\": %i"
+#define JSON_MSG_ROW_FMT_LEN 5
+
+#define PERCENT_AND_COMMA_SIZE 5
+
+#define JSON_MSG_HEADER_FMT "{\"entries\": {"
+#define JSON_MSG_HEADER_FMT_LEN 14
+
+#define JSON_MSG_FOOTER_FMT "}}"
+#define JSON_MSG_FOOTER_FMT_LEN 3
+
+#define INIT_MSG_BUFFER JSON_MSG_ROW_FMT_LEN + \
+ PERCENT_AND_COMMA_SIZE + JSON_MSG_HEADER_FMT_LEN + \
+ JSON_MSG_FOOTER_FMT_LEN
+
+static char *msg_buf;
+static char *msg_rows_buf;
+static int runtime_msg_bufs_size;
+
 static ST_conf config;
 
 static int parentfd;
@@ -51,7 +70,6 @@ static void cerror(FILE *stream, char *cause, char *err, char *shortmsg, char *l
   fprintf(stream, "<hr><em>The Tiny Web server</em>\n");
 }
 
-
 static int quit(pthread_mutex_t *mtx)
 {
   switch(pthread_mutex_trylock(mtx)) {
@@ -63,6 +81,65 @@ static int quit(pthread_mutex_t *mtx)
   }
   return 1;
 }
+
+static void report_list(FILE *stream)
+{
+    ENTRIES entries = NULL;
+    int entries_count;
+    entries = ST_get_entries(&entries_count);
+    size_t row_len = 0;
+    int msg_len = 0;
+    int buffer_approx;
+    size_t size = (JSON_MSG_ROW_FMT_LEN + PERCENT_AND_COMMA_SIZE) * entries_count;
+    for(int i = 0; i < entries_count; i++)
+    {
+        if(entries[i])
+        size += strlen(entries[i]->path) + 1;
+    }
+    buffer_approx = size + JSON_MSG_HEADER_FMT_LEN + JSON_MSG_FOOTER_FMT_LEN;
+    //Buffers halving
+    char *tmp;
+    if(buffer_approx > runtime_msg_bufs_size)
+    {
+        runtime_msg_bufs_size =2 * buffer_approx;
+        tmp = (char *) realloc(msg_buf, runtime_msg_bufs_size * sizeof(char));
+        msg_buf = tmp;
+        tmp = (char *) realloc(msg_rows_buf, runtime_msg_bufs_size * sizeof(char));
+        msg_rows_buf = tmp;
+    }
+    else if(buffer_approx <= (int) runtime_msg_bufs_size / 4)
+    {
+        runtime_msg_bufs_size /=2;
+        tmp = (char *) realloc(msg_buf, runtime_msg_bufs_size * sizeof(char));
+        msg_buf = tmp;
+        tmp = (char *) realloc(msg_rows_buf, runtime_msg_bufs_size * sizeof(char));
+        msg_rows_buf = tmp;
+    }
+    //clear buffers
+    *msg_buf = 0;
+    *msg_rows_buf = 0;
+    strcat(msg_buf, JSON_MSG_HEADER_FMT);
+    for(int i = 0; i < entries_count; i++)
+    {
+        row_len = sprintf(msg_rows_buf, JSON_MSG_ROW_FMT, entries[i]->path, entries[i]->free_percent);
+        strncat(msg_buf, msg_rows_buf, row_len);
+        if(i < entries_count - 1)
+        {
+           strcat(msg_buf, ",");
+        }
+    }
+    strcat(msg_buf, JSON_MSG_FOOTER_FMT);
+    msg_len = strlen(msg_buf);
+    fprintf(stream, "HTTP/1.1 200 OK\n");
+    fprintf(stream, "Server: stored daemon\n");
+    fprintf(stream, "Content-length: %d\n", msg_len);
+    fprintf(stream, "Content-type: %s\n", "application/json");
+    fprintf(stream, "\r\n");
+    fflush(stream);
+    fwrite(msg_buf, 1, msg_len, stream);
+    fflush(stream);
+}
+
 
 static void* serve(void* none)
 {
@@ -128,7 +205,7 @@ static void* serve(void* none)
         /* wait for a connection request */
         childfd = accept(parentfd, (struct sockaddr *) &clientaddr, &clientlen);
         if (childfd < 0){
-            error("ERROR on accept");
+            //error("ERROR on accept");
             break;
         }
         pthread_mutex_lock(&socket_lock);
@@ -164,9 +241,9 @@ static void* serve(void* none)
         {
             fgets(buf, BUFSIZE, stream);
         }
-
-        ST_report_list(stream);
-
+        pthread_mutex_lock(&ST_entries_lock);
+        report_list(stream);
+        pthread_mutex_unlock(&ST_entries_lock);
         fclose(stream);
         close(childfd);
     }
@@ -180,6 +257,9 @@ void ST_init_srv(ST_conf conf)
     {
         return;
     }
+    runtime_msg_bufs_size = INIT_MSG_BUFFER;
+    msg_buf = calloc(runtime_msg_bufs_size, sizeof(char));
+    msg_rows_buf = calloc(runtime_msg_bufs_size, sizeof(char));
     address = inet_addr(conf->bind_address);
     pthread_mutex_init(&mxq,NULL);
     pthread_mutex_lock(&mxq);
@@ -197,6 +277,8 @@ void ST_destroy_srv(void)
     pthread_mutex_lock(&socket_lock);
     shutdown(childfd, SHUT_RDWR);
     shutdown(parentfd, SHUT_RDWR);
+    free(msg_buf);
+    free(msg_rows_buf);
     pthread_mutex_unlock(&mxq);
     pthread_mutex_unlock(&socket_lock);
     pthread_join(srv_thread, NULL);
