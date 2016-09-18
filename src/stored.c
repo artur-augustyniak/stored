@@ -9,6 +9,7 @@
 #include "util/configure.h"
 #include "util/logger.h"
 #include "util/demonizer.h"
+#include "srv/srv.h"
 #include "mtab_check.h"
 #include "mtab_check_trigger.h"
 
@@ -54,9 +55,10 @@ int main(int argc, char *argv[])
                     if(conf)
                     {
                         ST_init_check_mtab(conf);
+                        ST_init_srv(conf);
                         ST_checks_loop(&ST_check_mtab, conf->timeout);
+                        ST_destroy_srv();
                         ST_destroy_check_mtab();
-
                     }
                     else
                     {

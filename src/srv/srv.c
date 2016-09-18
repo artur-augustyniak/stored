@@ -22,6 +22,8 @@
 #define BUFSIZE 1024
 #define MAXERRS 16
 
+static ST_conf config;
+
 static int parentfd;
 static int childfd;
 static pthread_mutex_t mxq;
@@ -29,10 +31,6 @@ static pthread_mutex_t socket_lock;
 static pthread_t srv_thread;
 static sigset_t set;
 static in_addr_t address;
-
-int ST_enabled = SERVER_ENABLED;
-int ST_port = SERVER_PORT;
-const char *ST_bind_addr = BIND_ADDR;
 
 static void error(char *msg)
 {
@@ -75,7 +73,7 @@ static void* serve(void* none)
         pthread_sigmask(SIG_BLOCK, &set, NULL);
 
     /* variables for connection management */
-    int portno = ST_port;            /* port to listen on */
+    int portno = config->server_port;            /* port to listen on */
     socklen_t  clientlen;         /* byte size of client's address */
     struct hostent *hostp; /* client host info */
     char *hostaddrp;       /* dotted decimal host addr string */
@@ -175,30 +173,31 @@ static void* serve(void* none)
     return NULL;
 }
 
-void ST_start_server(void)
+void ST_init_srv(ST_conf conf)
 {
-//    if(!curr_config.server_enabled)
-//    {
-//        return;
-//    }
-    //if not active
-    address = inet_addr(ST_bind_addr);
-
+    config = conf;
+    if(!conf->server_enabled)
+    {
+        return;
+    }
+    address = inet_addr(conf->bind_address);
     pthread_mutex_init(&mxq,NULL);
     pthread_mutex_lock(&mxq);
     pthread_mutex_init(&socket_lock,NULL);
     pthread_create(&srv_thread, NULL, &serve, &mxq);
+
 }
 
-void ST_stop_server(void){
-//    if(!curr_config.server_enabled)
-//    {
-//        return;
-//    }
-     pthread_mutex_lock(&socket_lock);
-     shutdown(childfd, SHUT_RDWR);
-     shutdown(parentfd, SHUT_RDWR);
-     pthread_mutex_unlock(&mxq);
-     pthread_mutex_unlock(&socket_lock);
-     pthread_join(srv_thread, NULL);
+void ST_destroy_srv(void)
+{
+    if(!config->server_enabled)
+    {
+        return;
+    }
+    pthread_mutex_lock(&socket_lock);
+    shutdown(childfd, SHUT_RDWR);
+    shutdown(parentfd, SHUT_RDWR);
+    pthread_mutex_unlock(&mxq);
+    pthread_mutex_unlock(&socket_lock);
+    pthread_join(srv_thread, NULL);
 }
