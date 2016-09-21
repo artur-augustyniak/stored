@@ -1,6 +1,7 @@
 AUTOMAKE_OPTIONS = subdir-objects
 # what flags you want to pass to the C compiler & linker
-AM_CFLAGS = --pedantic -Wall -std=gnu99 -O3 -lpthread -lsystemd -lconfig -D_FORTIFY_SOURCE=2 -fstack-protector \
+# -D_FORTIFY_SOURCE=2 -fstack-protector
+AM_CFLAGS = --pedantic -Wall -std=gnu99 -O0 -lpthread -lsystemd -lconfig  \
 -Wno-unused-result
 AM_LDFLAGS =
 
@@ -12,6 +13,5 @@ stored_SOURCES = stored.c mtab_check.h mtab_check.c mtab_check_trigger.h mtab_ch
 util/logger.h util/logger.c \
 util/demonizer.h util/demonizer.c \
 util/configure.h util/configure.c \
-util/sds.h util/sds.c util/sdsalloc.c \
-srv/srv.h srv/srv.c
+util/sds.h util/sds.c util/sdsalloc.c
 storectl_SOURCES = storectl.c

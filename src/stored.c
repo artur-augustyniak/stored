@@ -9,7 +9,6 @@
 #include "util/configure.h"
 #include "util/logger.h"
 #include "util/demonizer.h"
-#include "srv/srv.h"
 #include "mtab_check.h"
 #include "mtab_check_trigger.h"
 
@@ -28,7 +27,6 @@ static void stop(void)
     ST_logger_msg("daemon terminating.", ST_MSG_NOTICE);
     active = false;
     ST_break_checks_loop();
-    //ST_add_signal_hook(SIGINT, &ST_stop_server);
 }
 
 
@@ -56,9 +54,7 @@ int main(int argc, char *argv[])
                     {
                         ST_init_checks_loop(conf);
                         ST_init_check_mtab(conf);
-                        ST_init_srv(conf);
                         ST_checks_loop(&ST_check_mtab, conf->timeout);
-                        ST_destroy_srv();
                         ST_destroy_check_mtab();
                     }
                     else
