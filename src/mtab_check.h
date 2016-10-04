@@ -10,13 +10,15 @@ typedef struct ST_NOTICED_ENTRY
 }
 ST_NOTICED_ENTRY, *ST_NE;
 
-ST_NE *entries;
+typedef  ST_NE *ENTRIES;
 
-int entries_count;
+pthread_mutex_t ST_entries_lock;
 
 void ST_init_check_mtab(ST_conf conf);
 
 void ST_check_mtab(void);
+
+ENTRIES ST_get_entries(int *count);
 
 void ST_destroy_check_mtab(void);
 

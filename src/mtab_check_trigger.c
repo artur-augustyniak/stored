@@ -45,7 +45,9 @@ void ST_init_checks_loop(ST_conf conf)
 
 void ST_checks_loop(void (*check_func)(void), int timeout)
 {
-    ST_NE entry;
+    ENTRIES curr_list = NULL;
+    ST_NE entry =  NULL;
+    int items;
     while(active)
     {
         switch (poll(&pfd, 1, timeout))
@@ -65,9 +67,10 @@ void ST_checks_loop(void (*check_func)(void), int timeout)
             }
         }
         check_func();
-        for(int i = 0;i < entries_count; i++)
+        curr_list = ST_get_entries(&items);
+        for(int i = 0;i < items; i++)
         {
-            entry = entries[i];
+            entry = curr_list[i];
             if(config->notice_level  >= entry->free_percent)
             {
                 sprintf(msg_buf, msg_fmt, entry->path, entry->free_percent);
