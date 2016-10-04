@@ -2,20 +2,22 @@
 #ifndef CONFIGURE_H
 #define CONFIGURE_H
 
+
+
 typedef struct _ST_CONF
 {
-    int timeout;
-    int notice_level;
-    int warn_level;
-    int crit_level;
-    int server_enabled;
-    int server_port;
-    const char *bind_address;
-}
-ST_CONF, *ST_conf;
+    int interval;
+    int notice_percent;
+    int warn_percent;
+    int crit_percent;
+    int http_enabled;
+    int http_port;
+    const char *http_bind_address;
+} ST_CONFIG_STRUCT, *ST_CONFIG;
 
-ST_conf ST_config(const char *fpath);
 
-void ST_destroy_config();
+ST_CONFIG ST_new_config(const char *conf_file_path);
+
+void ST_destroy_config(ST_CONFIG c);
 
 #endif

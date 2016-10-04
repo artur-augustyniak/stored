@@ -4,86 +4,64 @@
 #include <libconfig.h>
 #include "configure.h"
 
-static ST_conf conf_handle;
 static config_t cfg;
 
-static int cfg_err(const char* section)
+ST_CONFIG ST_new_config(const char *conf_file_path)
 {
-    fprintf(stderr,
-        "no proper %s section in %s\n",
-        section,
-        config_error_file(&cfg)
-    );
-    config_destroy(&cfg);
-    return(EXIT_FAILURE);
-}
-
-static int read_conf(const char *fpath)
-{
-
+    ST_CONFIG c;
+    int error_line = 0;
+    const char *error_msg;
     config_setting_t *core_group;
     config_setting_t *server_group;
-    if(! config_read_file(&cfg, fpath))
+
+    config_init(&cfg);
+
+    c = (ST_CONFIG) malloc(sizeof(ST_CONFIG_STRUCT));
+    if(!c)
     {
-        fprintf(stderr,
-            "%s:%d - %s\n",
-            config_error_file(&cfg),
-            config_error_line(&cfg),
-            config_error_text(&cfg)
+        ST_abort(
+            __FILE__,
+            __LINE__,
+            "OOM error. Exiting!"
         );
-        //config_destroy(&cfg);
-        return(EXIT_FAILURE);
+        config_destroy(&cfg);
+    }
+
+    if(!config_read_file(&cfg, conf_file_path))
+    {
+        error_line = config_error_line(&cfg);
+        error_msg = config_error_text(&cfg);
+        ST_destroy_config(c);
+        ST_abort(conf_file_path, error_line, error_msg);
     }
 
     core_group = config_lookup(&cfg, "stored.core");
-    if(core_group != NULL)
+    if( NULL == core_group || !(
+               config_setting_lookup_int(core_group, "check_interval_ms", &c->interval)
+            && config_setting_lookup_int(core_group, "free_percent_notice", &c->notice_percent)
+            && config_setting_lookup_int(core_group, "free_percent_warn", &c->warn_percent)
+            && config_setting_lookup_int(core_group, "free_percent_crit", &c->crit_percent)
+    ))
     {
-        if(!(config_setting_lookup_int(core_group, "check_interval_ms", &conf_handle->timeout)
-            && config_setting_lookup_int(core_group, "free_percent_notice", &conf_handle->notice_level)
-            && config_setting_lookup_int(core_group, "free_percent_warn", &conf_handle->warn_level)
-            && config_setting_lookup_int(core_group, "free_percent_crit", &conf_handle->crit_level)
-        ))
-        {
-            return cfg_err("core");
-        }
+        ST_destroy_config(c);
+        ST_abort(conf_file_path, error_line, "stored.core value error");
     }
-    else
-    {
-        return cfg_err("core");
-    }
+
     server_group = config_lookup(&cfg, "stored.server");
-    if(server_group != NULL)
+    if( NULL == server_group || !(
+                config_setting_lookup_bool(server_group, "enabled", &c->http_enabled)
+            && config_setting_lookup_int(server_group, "port", &c->http_port)
+            && config_setting_lookup_string(server_group, "bind_addr", &c->http_bind_address)
+    ))
     {
-
-        if(!(config_setting_lookup_bool(server_group, "enabled", &conf_handle->server_enabled)
-            && config_setting_lookup_int(server_group, "port", &conf_handle->server_port)
-            && config_setting_lookup_string(server_group, "bind_addr", &conf_handle->bind_address)
-        ))
-        {
-            return cfg_err("server");
-        }
+        ST_destroy_config(c);
+        ST_abort(conf_file_path, error_line, "stored.server value error");
     }
-    else
-    {
-        return cfg_err("server");
-    }
-    return EXIT_SUCCESS;
+    return c;
 }
 
-ST_conf ST_config(const char *fpath)
-{
-    config_init(&cfg);
-    conf_handle = (ST_conf) malloc(sizeof(ST_CONF));
-
-    if(EXIT_SUCCESS == read_conf(fpath))
-    {
-        return conf_handle;
-    }
-    return NULL;
-}
-
-void ST_destroy_config()
+void ST_destroy_config(ST_CONFIG c)
 {
     config_destroy(&cfg);
-    free(conf_handle);
+    free(c);
 }
