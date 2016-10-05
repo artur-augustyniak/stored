@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <libconfig.h>
+#include <string.h>
 #include "configure.h"
+#include "common.h"
 
 static config_t cfg;
 
@@ -10,6 +12,7 @@ ST_CONFIG ST_new_config(const char *conf_file_path)
 {
     ST_CONFIG c;
     int error_line = 0;
+    int pthread_stat;
     const char *error_msg;
     config_setting_t *core_group;
     config_setting_t *server_group;
@@ -25,6 +28,19 @@ ST_CONFIG ST_new_config(const char *conf_file_path)
             "OOM error. Exiting!"
         );
         config_destroy(&cfg);
+    }
+
+    pthread_stat = pthread_mutex_init(&c->mutex, NULL);
+    if(pthread_stat)
+    {
+        config_destroy(&cfg);
+        free(c);
+        ST_abort(
+            __FILE__,
+            __LINE__,
+            strerror(pthread_stat)
+
+        );
     }
 
     if(!config_read_file(&cfg, conf_file_path))
@@ -63,5 +79,6 @@ ST_CONFIG ST_new_config(const char *conf_file_path)
 void ST_destroy_config(ST_CONFIG c)
 {
     config_destroy(&cfg);
+    pthread_mutex_destroy(&c->mutex);
     free(c);
 }
