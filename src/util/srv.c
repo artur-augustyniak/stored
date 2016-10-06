@@ -1,4 +1,4 @@
-#include <config.h>
+//#include <config.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -16,49 +16,18 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "srv.h"
-#include "mtab_check.h"
-#include "util/configure.h"
+
+
 
 #define BUFSIZE 1024
-#define MAXERRS 16
 
-#define JSON_MSG_ROW_FMT "\"%s\": %i"
-#define JSON_MSG_ROW_FMT_LEN 5
-
-#define PERCENT_AND_COMMA_SIZE 5
-
-#define JSON_MSG_HEADER_FMT "{\"entries\": {"
-#define JSON_MSG_HEADER_FMT_LEN 14
-
-#define JSON_MSG_FOOTER_FMT "}}"
-#define JSON_MSG_FOOTER_FMT_LEN 3
-
-#define INIT_MSG_BUFFER JSON_MSG_ROW_FMT_LEN + \
- PERCENT_AND_COMMA_SIZE + JSON_MSG_HEADER_FMT_LEN + \
- JSON_MSG_FOOTER_FMT_LEN
-
-static char *msg_buf;
-static char *msg_rows_buf;
-static int runtime_msg_bufs_size;
-
-static ST_conf config;
-
+static ST_CONFIG config;
 static int parentfd;
 static int childfd;
 static pthread_mutex_t mxq;
-static pthread_mutex_t socket_lock;
-static pthread_t srv_thread;
-static sigset_t set;
 static in_addr_t address;
 
-static void error(char *msg)
-{
-  perror(msg);
-  exit(1);
-}
-
-static void cerror(FILE *stream, char *cause, char *err, char *shortmsg, char *longmsg
-)
+static void cerror(FILE *stream, char *cause, char *err, char *shortmsg, char *longmsg)
 {
   fprintf(stream, "HTTP/1.1 %s %s\n", err, shortmsg);
   fprintf(stream, "Content-type: text/html\n");
@@ -82,75 +51,17 @@ static int quit(pthread_mutex_t *mtx)
   return 1;
 }
 
-static void report_list(FILE *stream)
-{
-    ENTRIES entries = NULL;
-    int entries_count;
-    entries = ST_get_entries(&entries_count);
-    size_t row_len = 0;
-    int msg_len = 0;
-    int buffer_approx;
-    size_t size = (JSON_MSG_ROW_FMT_LEN + PERCENT_AND_COMMA_SIZE) * entries_count;
-    for(int i = 0; i < entries_count; i++)
-    {
-        if(entries[i])
-        size += strlen(entries[i]->path) + 1;
-    }
-    buffer_approx = size + JSON_MSG_HEADER_FMT_LEN + JSON_MSG_FOOTER_FMT_LEN;
-    //Buffers halving
-    char *tmp;
-    if(buffer_approx > runtime_msg_bufs_size)
-    {
-        runtime_msg_bufs_size =2 * buffer_approx;
-        tmp = (char *) realloc(msg_buf, runtime_msg_bufs_size * sizeof(char));
-        msg_buf = tmp;
-        tmp = (char *) realloc(msg_rows_buf, runtime_msg_bufs_size * sizeof(char));
-        msg_rows_buf = tmp;
-    }
-    else if(buffer_approx <= (int) runtime_msg_bufs_size / 4)
-    {
-        runtime_msg_bufs_size /=2;
-        tmp = (char *) realloc(msg_buf, runtime_msg_bufs_size * sizeof(char));
-        msg_buf = tmp;
-        tmp = (char *) realloc(msg_rows_buf, runtime_msg_bufs_size * sizeof(char));
-        msg_rows_buf = tmp;
-    }
-    //clear buffers
-    *msg_buf = 0;
-    *msg_rows_buf = 0;
-    strcat(msg_buf, JSON_MSG_HEADER_FMT);
-    for(int i = 0; i < entries_count; i++)
-    {
-        row_len = sprintf(msg_rows_buf, JSON_MSG_ROW_FMT, entries[i]->path, entries[i]->free_percent);
-        strncat(msg_buf, msg_rows_buf, row_len);
-        if(i < entries_count - 1)
-        {
-           strcat(msg_buf, ",");
-        }
-    }
-    strcat(msg_buf, JSON_MSG_FOOTER_FMT);
-    msg_len = strlen(msg_buf);
-    fprintf(stream, "HTTP/1.1 200 OK\n");
-    fprintf(stream, "Server: stored daemon\n");
-    fprintf(stream, "Content-length: %d\n", msg_len);
-    fprintf(stream, "Content-type: %s\n", "application/json");
-    fprintf(stream, "\r\n");
-    fflush(stream);
-    fwrite(msg_buf, 1, msg_len, stream);
-    fflush(stream);
-}
-
-
 static void* serve(void* none)
 {
-
-        sigemptyset(&set);
-        sigaddset(&set, SIGPIPE);
-        sigaddset(&set, SIGHUP);
-        pthread_sigmask(SIG_BLOCK, &set, NULL);
+//        sigemptyset(&set);
+//        sigaddset(&set, SIGPIPE);
+//        sigaddset(&set, SIGHUP);
+//        pthread_sigmask(SIG_BLOCK, &set, NULL);
 
     /* variables for connection management */
-    int portno = config->server_port;            /* port to listen on */
+    ST_lock(&config->mutex);
+    int portno = config->http_port;            /* port to listen on */
+    ST_unlock(&config->mutex);
     socklen_t  clientlen;         /* byte size of client's address */
     struct hostent *hostp; /* client host info */
     char *hostaddrp;       /* dotted decimal host addr string */
@@ -201,14 +112,14 @@ static void* serve(void* none)
 
     while(!quit(&mxq))
     {
-        pthread_mutex_unlock(&socket_lock);
+
         /* wait for a connection request */
         childfd = accept(parentfd, (struct sockaddr *) &clientaddr, &clientlen);
         if (childfd < 0){
             //error("ERROR on accept");
             break;
         }
-        pthread_mutex_lock(&socket_lock);
+
         /* determine who sent the message */
         hostp = gethostbyaddr((const char *)&clientaddr.sin_addr.s_addr, sizeof(clientaddr.sin_addr.s_addr), AF_INET);
         if (hostp == NULL){
@@ -241,45 +152,95 @@ static void* serve(void* none)
         {
             fgets(buf, BUFSIZE, stream);
         }
-        pthread_mutex_lock(&ST_entries_lock);
-        report_list(stream);
-        pthread_mutex_unlock(&ST_entries_lock);
+//        pthread_mutex_lock(&ST_entries_lock);
+//        report_list(stream);
+//        pthread_mutex_unlock(&ST_entries_lock);
         fclose(stream);
         close(childfd);
     }
     return NULL;
 }
 
-void ST_init_srv(ST_conf conf)
+ST_SRV_BUFF ST_init_srv(ST_CONFIG c)
 {
-    config = conf;
-    if(!conf->server_enabled)
+    if(!c)
     {
-        return;
+        ST_abort(
+            __FILE__,
+            __LINE__,
+            "ST_CONFIG (c) NPE"
+        );
     }
-    runtime_msg_bufs_size = INIT_MSG_BUFFER;
-    msg_buf = calloc(runtime_msg_bufs_size, sizeof(char));
-    msg_rows_buf = calloc(runtime_msg_bufs_size, sizeof(char));
-    address = inet_addr(conf->bind_address);
-    pthread_mutex_init(&mxq,NULL);
-    pthread_mutex_lock(&mxq);
-    pthread_mutex_init(&socket_lock,NULL);
-    pthread_create(&srv_thread, NULL, &serve, &mxq);
 
+    config = c;
+
+    int server_enabled;
+    int cb_pthread_stat;
+    int inet_aton_stat = 0;
+    ST_SRV_BUFF content_buffer;
+
+    ST_lock(&config->mutex);
+    server_enabled = c->http_enabled;
+    ST_unlock(&config->mutex);
+
+    if(!server_enabled)
+    {
+        return NULL;
+    }
+
+    content_buffer = (ST_SRV_BUFF) malloc(sizeof(ST_SERVER_BUFFER));
+    if(!content_buffer)
+    {
+        ST_abort(
+            __FILE__,
+            __LINE__,
+            "OOM error. Exiting!"
+        );
+    }
+
+    cb_pthread_stat = pthread_mutex_init(&content_buffer->mutex, NULL);
+    if(cb_pthread_stat)
+    {
+        free(content_buffer);
+        ST_abort(
+            __FILE__,
+            __LINE__,
+            strerror(cb_pthread_stat)
+        );
+    }
+
+    ST_lock(&config->mutex);
+    address = inet_addr(config->http_bind_address);
+    ST_unlock(&config->mutex);
+    if(INADDR_NONE == address)
+    {
+        pthread_mutex_destroy(&content_buffer->mutex);
+        free(content_buffer);
+        ST_abort(
+            __FILE__,
+            __LINE__,
+            "Incorrect bind addr!"
+        );
+    }
+
+//    pthread_mutex_init(&mxq,NULL);
+//    pthread_mutex_lock(&mxq);
+//    pthread_mutex_init(&socket_lock,NULL);
+//    pthread_create(&srv_thread, NULL, &serve, &mxq);
+
+    return content_buffer;
 }
 
-void ST_destroy_srv(void)
+void ST_destroy_srv(ST_SRV_BUFF b)
 {
-    if(!config->server_enabled)
-    {
-        return;
-    }
-    pthread_mutex_lock(&socket_lock);
-    shutdown(childfd, SHUT_RDWR);
-    shutdown(parentfd, SHUT_RDWR);
-    free(msg_buf);
-    free(msg_rows_buf);
-    pthread_mutex_unlock(&mxq);
-    pthread_mutex_unlock(&socket_lock);
-    pthread_join(srv_thread, NULL);
+    pthread_mutex_destroy(&b->mutex);
+    free(b);
+//    pthread_mutex_lock(&socket_lock);
+//    shutdown(childfd, SHUT_RDWR);
+//    shutdown(parentfd, SHUT_RDWR);
+//    free(msg_buf);
+//    free(msg_rows_buf);
+//    pthread_mutex_unlock(&mxq);
+//    pthread_mutex_unlock(&socket_lock);
+//    pthread_join(srv_thread, NULL);
 }

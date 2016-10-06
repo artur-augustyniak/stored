@@ -11,4 +11,14 @@ void ST_abort(const char *file, unsigned int line, const char *msg)
     abort();
 }
 
+int ST_lock(pthread_mutex_t *l)
+{
+    return pthread_mutex_lock(l);
+}
+
+int ST_unlock(pthread_mutex_t *l)
+{
+    return pthread_mutex_unlock(l);
+}
+
 #endif

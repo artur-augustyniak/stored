@@ -3,29 +3,35 @@
 #include <stdlib.h>
 #include<pthread.h>
 #include "configure.h"
+#include "srv.h"
 
 #define THREAD_ITER 10000
 #define NUM_THREADS 20
 
 ST_CONFIG core_config = NULL;
+ST_SRV_BUFF srv_buff = NULL;
 
 void* inc_interval(void *p)
 {
     int i;
     for(i=0; i < THREAD_ITER; i++)
     {
-        pthread_mutex_lock(&core_config->mutex);
+        ST_lock(&core_config->mutex);
         core_config->interval++;
-        pthread_mutex_unlock(&core_config->mutex);
+        ST_unlock(&core_config->mutex);
     }
 }
 
-/* gcc -g -lconfig -lpthread testing_main.c configure.c */
+/* gcc -g -lconfig -lpthread srv_test.c srv.c configure.c  */
 int  main(void)
 {
     ST_CONFIG c;
     c = ST_new_config("/tmp/stored.cfg");
     core_config = c;
+
+    ST_SRV_BUFF b;
+    b = ST_init_srv(core_config);
+    srv_buff = b;
 
     pthread_t threads[NUM_THREADS];
     int rc;
@@ -47,7 +53,9 @@ int  main(void)
     }
 
     printf("%d\n", c->interval);
+    ST_destroy_srv(srv_buff);
     ST_destroy_config(core_config);
+
 
     /* Last thing that main(); should do */
     pthread_exit(NULL);

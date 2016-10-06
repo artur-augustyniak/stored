@@ -3,7 +3,6 @@
 #define CONFIGURE_H
 #include <pthread.h>
 
-
 typedef struct _ST_CONF
 {
     int interval;
@@ -15,7 +14,6 @@ typedef struct _ST_CONF
     const char *http_bind_address;
     pthread_mutex_t mutex;
 } ST_CONFIG_STRUCT, *ST_CONFIG;
-
 
 ST_CONFIG ST_new_config(const char *conf_file_path);
 
