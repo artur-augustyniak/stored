@@ -10,15 +10,19 @@
 
 ST_CONFIG core_config = NULL;
 ST_SRV_BUFF srv_buff = NULL;
+char str[20];
 
 void* inc_interval(void *p)
 {
     int i;
+
     for(i=0; i < THREAD_ITER; i++)
     {
-        ST_lock(&core_config->mutex);
-        core_config->interval++;
-        ST_unlock(&core_config->mutex);
+        ST_lock(&srv_buff->mutex);
+        sprintf(str, "<b>%d</b>", i);
+        srv_buff->data = str;
+        ST_unlock(&srv_buff->mutex);
+
     }
 }
 
@@ -26,13 +30,13 @@ void* inc_interval(void *p)
 int  main(void)
 {
     ST_CONFIG c;
-    c = ST_new_config("/tmp/stored.cfg");
+    c = ST_new_config("../../../etc/stored.cfg");
     core_config = c;
 
     ST_SRV_BUFF b;
     b = ST_init_srv(core_config);
     srv_buff = b;
-
+    srv_buff->data = "<b>Dupa</b>";
     pthread_t threads[NUM_THREADS];
     int rc;
     long t;
@@ -51,7 +55,7 @@ int  main(void)
     for (i = 0; i < NUM_THREADS; i++) {
         pthread_join(threads[i], NULL);
     }
-
+    sleep(30);
     printf("%d\n", c->interval);
     ST_destroy_srv(srv_buff);
     ST_destroy_config(core_config);

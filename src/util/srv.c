@@ -26,6 +26,9 @@ static int parentfd;
 static int childfd;
 static pthread_mutex_t mxq;
 static in_addr_t address;
+static  pthread_t srv_thread;
+static ST_SRV_BUFF srv_buffer;
+static char *content_buffer = NULL;
 
 static void cerror(FILE *stream, char *cause, char *err, char *shortmsg, char *longmsg)
 {
@@ -152,11 +155,25 @@ static void* serve(void* none)
         {
             fgets(buf, BUFSIZE, stream);
         }
-//        pthread_mutex_lock(&ST_entries_lock);
-//        report_list(stream);
-//        pthread_mutex_unlock(&ST_entries_lock);
+
+        ST_lock(&srv_buffer->mutex);
+        content_buffer = strdup(srv_buffer->data);
+        ST_unlock(&srv_buffer->mutex);
+        int len = strlen(content_buffer);
+        fprintf(stream, "HTTP/1.1 200 OK\n");
+        fprintf(stream, "Server: stored daemon\n");
+        fprintf(stream, "Content-length: %d\n", len);
+        fprintf(stream, "Content-type: %s\n", "text/html");
+        fprintf(stream, "\r\n");
+        //fflush(stream);
+        fwrite(content_buffer, 1, len, stream);
+        fflush(stream);
         fclose(stream);
         close(childfd);
+        if(content_buffer)
+        {
+            free(content_buffer);
+        }
     }
     return NULL;
 }
@@ -175,7 +192,7 @@ ST_SRV_BUFF ST_init_srv(ST_CONFIG c)
     config = c;
 
     int server_enabled;
-    int cb_pthread_stat;
+    int cb_pthread_stat, q_pthread_stat;
     int inet_aton_stat = 0;
     ST_SRV_BUFF content_buffer;
 
@@ -209,11 +226,25 @@ ST_SRV_BUFF ST_init_srv(ST_CONFIG c)
         );
     }
 
+    q_pthread_stat = pthread_mutex_init(&mxq,NULL);
+    if(q_pthread_stat)
+    {
+        pthread_mutex_destroy(&content_buffer->mutex);
+        free(content_buffer);
+        ST_abort(
+            __FILE__,
+            __LINE__,
+            strerror(q_pthread_stat)
+         );
+    }
+
     ST_lock(&config->mutex);
     address = inet_addr(config->http_bind_address);
     ST_unlock(&config->mutex);
+
     if(INADDR_NONE == address)
     {
+        pthread_mutex_destroy(&mxq);
         pthread_mutex_destroy(&content_buffer->mutex);
         free(content_buffer);
         ST_abort(
@@ -223,24 +254,19 @@ ST_SRV_BUFF ST_init_srv(ST_CONFIG c)
         );
     }
 
-//    pthread_mutex_init(&mxq,NULL);
-//    pthread_mutex_lock(&mxq);
-//    pthread_mutex_init(&socket_lock,NULL);
-//    pthread_create(&srv_thread, NULL, &serve, &mxq);
-
+    ST_lock(&mxq);
+    srv_buffer = content_buffer;
+    pthread_create(&srv_thread, NULL, &serve, &mxq);
     return content_buffer;
 }
 
 void ST_destroy_srv(ST_SRV_BUFF b)
 {
+    shutdown(childfd, SHUT_RDWR);
+    shutdown(parentfd, SHUT_RDWR);
+    pthread_mutex_unlock(&mxq);
+    pthread_join(srv_thread, NULL);
+    pthread_mutex_destroy(&mxq);
     pthread_mutex_destroy(&b->mutex);
     free(b);
-//    pthread_mutex_lock(&socket_lock);
-//    shutdown(childfd, SHUT_RDWR);
-//    shutdown(parentfd, SHUT_RDWR);
-//    free(msg_buf);
-//    free(msg_rows_buf);
-//    pthread_mutex_unlock(&mxq);
-//    pthread_mutex_unlock(&socket_lock);
-//    pthread_join(srv_thread, NULL);
 }

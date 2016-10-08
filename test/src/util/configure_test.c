@@ -24,7 +24,7 @@ void* inc_interval(void *p)
 int  main(void)
 {
     ST_CONFIG c;
-    c = ST_new_config("/tmp/stored.cfg");
+    c = ST_new_config("../../../etc/stored.cfg");
     core_config = c;
 
     pthread_t threads[NUM_THREADS];
