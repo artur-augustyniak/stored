@@ -1,5 +1,6 @@
 //#include <config.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <errno.h>
@@ -17,8 +18,6 @@
 #include <arpa/inet.h>
 #include "srv.h"
 
-
-
 #define BUFSIZE 1024
 
 static ST_CONFIG config;
@@ -29,6 +28,7 @@ static in_addr_t address;
 static  pthread_t srv_thread;
 static ST_SRV_BUFF srv_buffer;
 static char *content_buffer = NULL;
+static bool stopped = true;
 
 static void cerror(FILE *stream, char *cause, char *err, char *shortmsg, char *longmsg)
 {
@@ -98,7 +98,11 @@ static void* serve(void* none)
     serveraddr.sin_port = htons((unsigned short)portno);
     if (bind(parentfd, (struct sockaddr *) &serveraddr, sizeof(serveraddr)) < 0)
     {
-        error("ERROR on binding");
+        ST_abort(
+            __FILE__,
+            __LINE__,
+            "ERROR on binding"
+        );
     }
 
     /* get us ready to accept connection requests */
@@ -192,7 +196,7 @@ ST_SRV_BUFF ST_init_srv(ST_CONFIG c)
     config = c;
 
     int server_enabled;
-    int cb_pthread_stat, q_pthread_stat;
+    int cb_pthread_stat;
     int inet_aton_stat = 0;
     ST_SRV_BUFF content_buffer;
 
@@ -226,46 +230,71 @@ ST_SRV_BUFF ST_init_srv(ST_CONFIG c)
         );
     }
 
-    q_pthread_stat = pthread_mutex_init(&mxq,NULL);
-    if(q_pthread_stat)
-    {
-        pthread_mutex_destroy(&content_buffer->mutex);
-        free(content_buffer);
-        ST_abort(
-            __FILE__,
-            __LINE__,
-            strerror(q_pthread_stat)
-         );
-    }
 
-    ST_lock(&config->mutex);
-    address = inet_addr(config->http_bind_address);
-    ST_unlock(&config->mutex);
-
-    if(INADDR_NONE == address)
-    {
-        pthread_mutex_destroy(&mxq);
-        pthread_mutex_destroy(&content_buffer->mutex);
-        free(content_buffer);
-        ST_abort(
-            __FILE__,
-            __LINE__,
-            "Incorrect bind addr!"
-        );
-    }
-
-    ST_lock(&mxq);
     srv_buffer = content_buffer;
-    pthread_create(&srv_thread, NULL, &serve, &mxq);
     return content_buffer;
+}
+
+void ST_start_srv(ST_SRV_BUFF b)
+{
+    if(stopped)
+    {
+        int q_pthread_stat = pthread_mutex_init(&mxq,NULL);
+        if(q_pthread_stat)
+        {
+            pthread_mutex_destroy(&b->mutex);
+            free(b);
+            ST_abort(
+                __FILE__,
+                __LINE__,
+                strerror(q_pthread_stat)
+             );
+        }
+
+        ST_lock(&config->mutex);
+        address = inet_addr(config->http_bind_address);
+        ST_unlock(&config->mutex);
+
+        if(INADDR_NONE == address)
+        {
+            pthread_mutex_destroy(&mxq);
+            pthread_mutex_destroy(&b->mutex);
+            free(b);
+            ST_abort(
+                __FILE__,
+                __LINE__,
+                "Incorrect bind addr!"
+            );
+        }
+
+        ST_lock(&mxq);
+        pthread_create(&srv_thread, NULL, &serve, &mxq);
+        stopped = false;
+    }
+}
+
+void ST_stop_srv(ST_SRV_BUFF b)
+{
+    if(!stopped)
+    {
+        shutdown(childfd, SHUT_RDWR);
+        shutdown(parentfd, SHUT_RDWR);
+        pthread_mutex_unlock(&mxq);
+        pthread_join(srv_thread, NULL);
+        stopped = true;
+    }
+}
+
+void ST_restart_srv(ST_SRV_BUFF b)
+{
+    ST_stop_srv(b);
+    ST_start_srv(b);
+
 }
 
 void ST_destroy_srv(ST_SRV_BUFF b)
 {
-    shutdown(childfd, SHUT_RDWR);
-    shutdown(parentfd, SHUT_RDWR);
-    pthread_mutex_unlock(&mxq);
-    pthread_join(srv_thread, NULL);
+    ST_stop_srv(b);
     pthread_mutex_destroy(&mxq);
     pthread_mutex_destroy(&b->mutex);
     free(b);

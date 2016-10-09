@@ -11,6 +11,7 @@
 ST_CONFIG core_config = NULL;
 ST_SRV_BUFF srv_buff = NULL;
 char str[20];
+int counter;
 
 void* inc_interval(void *p)
 {
@@ -19,7 +20,8 @@ void* inc_interval(void *p)
     for(i=0; i < THREAD_ITER; i++)
     {
         ST_lock(&srv_buff->mutex);
-        sprintf(str, "<b>%d</b>", i);
+        sprintf(str, "<b>%d</b>", counter++);
+        pthread_yield();
         srv_buff->data = str;
         ST_unlock(&srv_buff->mutex);
 
@@ -29,14 +31,11 @@ void* inc_interval(void *p)
 /* gcc -g -lconfig -lpthread srv_test.c srv.c configure.c  */
 int  main(void)
 {
-    ST_CONFIG c;
-    c = ST_new_config("../../../etc/stored.cfg");
-    core_config = c;
 
-    ST_SRV_BUFF b;
-    b = ST_init_srv(core_config);
-    srv_buff = b;
-    srv_buff->data = "<b>Dupa</b>";
+    core_config = ST_new_config("../../../etc/stored.cfg");
+    srv_buff = ST_init_srv(core_config);
+    ST_start_srv(srv_buff);
+
     pthread_t threads[NUM_THREADS];
     int rc;
     long t;
@@ -55,8 +54,13 @@ int  main(void)
     for (i = 0; i < NUM_THREADS; i++) {
         pthread_join(threads[i], NULL);
     }
-    sleep(30);
-    printf("%d\n", c->interval);
+    sleep(20);
+    core_config->http_port = 1532;
+    ST_restart_srv(srv_buff);
+
+
+    sleep(20);
+    ST_stop_srv(srv_buff);
     ST_destroy_srv(srv_buff);
     ST_destroy_config(core_config);
 

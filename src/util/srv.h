@@ -17,6 +17,12 @@ typedef struct _SRV_BUFF
  */
 ST_SRV_BUFF ST_init_srv(ST_CONFIG c);
 
+void ST_start_srv(ST_SRV_BUFF b);
+
+void ST_stop_srv(ST_SRV_BUFF b);
+
+void ST_restart_srv(ST_SRV_BUFF b);
+
 void ST_destroy_srv(ST_SRV_BUFF b);
 
 #endif
