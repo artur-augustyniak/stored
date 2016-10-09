@@ -14,7 +14,8 @@
 #include "mtab_check_trigger.h"
 
 static bool active = true;
-static ST_conf conf;
+static ST_CONFIG core_config = NULL;
+static ST_SRV_BUFF srv_buff = NULL;
 static char *conf_path;
 
 static void reload (void)
@@ -49,25 +50,21 @@ int main(int argc, char *argv[])
                 ST_add_signal_hook(SIGHUP, &reload);
                 ST_demonize();
                 ST_logger_msg("daemon started.", ST_MSG_NOTICE);
+
+                conf = ST_new_config(optarg);
+                srv_buff = ST_init_srv(conf);
+
                 while(active)
                 {
-                    conf = ST_config(optarg);
-                    if(conf)
-                    {
-                        ST_init_checks_loop(conf);
-                        ST_init_check_mtab(conf);
-                        ST_init_srv(conf);
-                        ST_checks_loop(&ST_check_mtab, conf->timeout);
-                        ST_destroy_srv();
-                        ST_destroy_check_mtab();
-                    }
-                    else
-                    {
-                        active = false;
-                        ST_logger_msg("configuration error.", ST_MSG_CRIT);
-                    }
-                    ST_destroy_config();
+                    ST_init_checks_loop(conf);
+                    ST_init_check_mtab(conf);
+                    ST_restart_srv(srv_buff);
+                    ST_checks_loop(&ST_check_mtab, conf->timeout);
+                    conf = ST_new_config(optarg);
+                    ST_destroy_check_mtab();
                 }
+                ST_destroy_srv(srv_buff);
+                ST_destroy_config(conf);
                 ST_logger_msg("daemon terminated.", ST_MSG_NOTICE);
                 ST_destroy_demonizer();
                 ST_logger_destroy();

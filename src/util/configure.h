@@ -17,6 +17,10 @@ typedef struct _ST_CONF
 
 ST_CONFIG ST_new_config(const char *conf_file_path);
 
+void ST_reload_config(ST_CONFIG c);
+
+void ST_print_config(ST_CONFIG c);
+
 void ST_destroy_config(ST_CONFIG c);
 
 #endif

@@ -23,9 +23,8 @@ void* inc_interval(void *p)
 /* gcc -g -lconfig -lpthread configure_test.c configure.c */
 int  main(void)
 {
-    ST_CONFIG c;
-    c = ST_new_config("../../../etc/stored.cfg");
-    core_config = c;
+
+    core_config = ST_new_config("../../../etc/stored.cfg");
 
     pthread_t threads[NUM_THREADS];
     int rc;
@@ -45,8 +44,12 @@ int  main(void)
     for (i = 0; i < NUM_THREADS; i++) {
         pthread_join(threads[i], NULL);
     }
+    ST_print_config(core_config);
+    sleep(40);
+    ST_reload_config(core_config);
+    ST_print_config(core_config);
 
-    printf("%d\n", c->interval);
+
     ST_destroy_config(core_config);
 
     /* Last thing that main(); should do */
