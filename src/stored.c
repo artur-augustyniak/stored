@@ -46,6 +46,7 @@ int main(int argc, char *argv[])
             {
                 ST_logger_init(PACKAGE_NAME, ST_STDOUT);
                 ST_init_demonizer(ST_NOTIFY);
+
                 ST_add_signal_hook(SIGINT, &stop);
                 ST_add_signal_hook(SIGHUP, &reload);
                 ST_demonize();
@@ -66,6 +67,8 @@ int main(int argc, char *argv[])
                 ST_destroy_srv(srv_buff);
                 ST_destroy_config(conf);
                 ST_logger_msg("daemon terminated.", ST_MSG_NOTICE);
+
+
                 ST_destroy_demonizer();
                 ST_logger_destroy();
                 free(conf_path);

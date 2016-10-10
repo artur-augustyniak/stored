@@ -7,6 +7,7 @@
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <linux/netlink.h>
+#include "util/common.h"
 #include "util/logger.h"
 #include "mtab_check.h"
 #include "mtab_check_trigger.h"
@@ -15,7 +16,9 @@
 #define MSG_FMT_LEN 30
 #define MSG_LEN MSG_FMT_LEN + PATH_MAX
 
-static ST_conf config;
+static ST_CONFIG config = NULL;
+static ST_SRV_BUFF srv_buff = NULL;
+
 static bool active = false;
 static struct sockaddr_nl nls;
 static struct pollfd pfd;
@@ -25,7 +28,7 @@ const static char msg_fmt[] = MSG_FMT;
 static char msg_buf[MSG_LEN];
 
 
-void ST_init_checks_loop(ST_conf conf)
+void ST_init_checks_loop(ST_CONFIG conf, ST_SRV_BUFF buff)
 {
     config = conf;
     active = true;
@@ -39,7 +42,11 @@ void ST_init_checks_loop(ST_conf conf)
     // Listen to netlink socket
     if (bind(pfd.fd, (void *)&nls, sizeof(struct sockaddr_nl)))
     {
-        ST_logger_msg("Bind failed", ST_MSG_ERROR);
+        ST_abort(
+            __FILE__,
+            __LINE__,
+            "Hotplug event netlink socket bind failed"
+        );
     }
 }
 
@@ -61,8 +68,11 @@ void ST_checks_loop(void (*check_func)(void), int timeout)
                 else
                 {
                     active = false;
-                    perror("unknown poll error");
-                    exit(1);
+                    ST_abort(
+                        __FILE__,
+                        __LINE__,
+                        "Unknown poll error."
+                    );
                 }
             }
         }
