@@ -9,7 +9,7 @@ typedef struct map_t *ASSOC_MAP;
 typedef struct _MTAB_ENTRIES
 {
     //K:string - path : V:string percent
-    ASSOC_MAP entries = NULL;
+    ASSOC_MAP entries;
     pthread_mutex_t mutex;
 
 } ST_MTAB_MTAB_ENTRIES_STRUCT, *ST_MTAB_ENTRIES;

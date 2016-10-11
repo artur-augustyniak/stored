@@ -14,7 +14,7 @@ static load_from_file(ST_CONFIG c)
 {
     int error_line = 0;
     const char *error_msg;
-    config_destroy(&cfg);
+//    config_destroy(&cfg);
     config_init(&cfg);
     if(!config_read_file(&cfg, file_path))
     {
