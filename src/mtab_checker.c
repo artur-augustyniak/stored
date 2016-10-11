@@ -80,7 +80,6 @@ void ST_check_mtab(ST_MTAB_ENTRIES me)
     ST_unlock(&config->mutex);
 
     ST_lock(&me->mutex);
-//    map_free_strings(me->entries);
     while((mt = getmntent(mtabf)))
     {
         if(0 == statvfs(mt->mnt_dir, &s))
@@ -100,15 +99,10 @@ void ST_check_mtab(ST_MTAB_ENTRIES me)
                         s.f_bavail * s.f_bsize
                     )
                 );
-                if(notice_level  >= free_percent)
-                {
-                //http://troydhanson.github.io/uthash/userguide.html
-                    ST_MTAB_ENTRY s;
-                    s = (ST_MTAB_ENTRY)malloc(sizeof(ST_MTAB_ENTR));
-                    s->key_path = strdup(mt->mnt_dir);
-                    s->free_percent_val = free_percent;
-                    HASH_ADD_STR(&me->entries, key_path, s );
-                }
+//                if(notice_level  >= free_percent)
+//                {
+                    printf("%s - %d\n", mt->mnt_dir, free_percent);
+//                }
             }
         }
         else

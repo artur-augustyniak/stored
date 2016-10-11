@@ -6,7 +6,7 @@
 #include "mtab_checker.h"
 
 #define THREAD_ITER 10
-#define NUM_THREADS 20
+#define NUM_THREADS 1
 
 ST_CONFIG core_config = NULL;
 ST_MTAB_ENTRIES entries = NULL;
@@ -19,6 +19,7 @@ void* inc_interval(void *p)
     int i;
     for(i=0; i < THREAD_ITER; i++)
     {
+        printf("################ ENTRY ################\n");
         ST_check_mtab(entries);
         ST_lock(&entries->mutex);
         pthread_yield();
@@ -26,7 +27,7 @@ void* inc_interval(void *p)
     }
 }
 
-/* gcc -g -lconfig -lpthread mtab_checker_test.c mtab_checker.c util/configure.c util/map_lib.c util/logger.c util/sds.c  */
+/* gcc -g -lconfig -lpthread mtab_checker_test.c mtab_checker.c util/configure.c util/logger.c util/sds.c util/common.c */
 int  main(void)
 {
 
@@ -50,7 +51,7 @@ int  main(void)
     for (i = 0; i < NUM_THREADS; i++) {
         pthread_join(threads[i], NULL);
     }
-    ST_check_mtab(entries);
+
     ST_destroy_mtab_checker(entries);
     ST_destroy_config(core_config);
 
