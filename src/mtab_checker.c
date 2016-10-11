@@ -9,19 +9,22 @@
 #include <pthread.h>
 #include <sys/statvfs.h>
 #include "mtab_checker.h"
-//#include "util/common.h"
+#include "util/common.h"
 #include "util/logger.h"
 
-#define TYPE_EXC_LEN  3
+//#define TYPE_EXC_LEN  3
 
 typedef struct mntent M_TAB;
 static FILE* mtabf;
 static struct statvfs s;
 static ST_CONFIG config;
-static char type_exc[TYPE_EXC_LEN];
+//static char type_exc[TYPE_EXC_LEN];
 
 ST_MTAB_ENTRIES ST_init_mtab_checker(ST_CONFIG c)
 {
+    ST_MTAB_ENTRIES me;
+    int pthread_stat;
+
     if(!c)
     {
         ST_abort(
@@ -30,6 +33,7 @@ ST_MTAB_ENTRIES ST_init_mtab_checker(ST_CONFIG c)
             "ST_CONFIG (c) NPE"
         );
     }
+    config = c;
 
     mtabf = setmntent(_PATH_MOUNTED, "r");
     if(!mtabf)
@@ -41,9 +45,7 @@ ST_MTAB_ENTRIES ST_init_mtab_checker(ST_CONFIG c)
         );
     }
 
-    config = c;
-    ST_MTAB_ENTRIES me;
-    int pthread_stat;
+
     me = (ST_MTAB_ENTRIES) malloc(sizeof(ST_MTAB_MTAB_ENTRIES_STRUCT));
     if(!me)
     {
@@ -64,16 +66,6 @@ ST_MTAB_ENTRIES ST_init_mtab_checker(ST_CONFIG c)
             strerror(pthread_stat)
         );
     }
-    me->entries = map_create();
-    if(!me->entries)
-    {
-        free(me);
-        ST_abort(
-            __FILE__,
-            __LINE__,
-            "OOM error. Exiting!"
-        );
-    }
     return me;
 }
 
@@ -88,7 +80,7 @@ void ST_check_mtab(ST_MTAB_ENTRIES me)
     ST_unlock(&config->mutex);
 
     ST_lock(&me->mutex);
-    map_free_strings(me->entries);
+//    map_free_strings(me->entries);
     while((mt = getmntent(mtabf)))
     {
         if(0 == statvfs(mt->mnt_dir, &s))
@@ -110,8 +102,12 @@ void ST_check_mtab(ST_MTAB_ENTRIES me)
                 );
                 if(notice_level  >= free_percent)
                 {
-                    //sprintf(type_exc, "<b>%d</b>", free_percent);
-                    map_set(me->entries, mt->mnt_dir, "asd");
+                //http://troydhanson.github.io/uthash/userguide.html
+                    ST_MTAB_ENTRY s;
+                    s = (ST_MTAB_ENTRY)malloc(sizeof(ST_MTAB_ENTR));
+                    s->key_path = strdup(mt->mnt_dir);
+                    s->free_percent_val = free_percent;
+                    HASH_ADD_STR(&me->entries, key_path, s );
                 }
             }
         }
@@ -132,9 +128,14 @@ void ST_destroy_mtab_checker(ST_MTAB_ENTRIES me)
 {
     if( 0 == endmntent(mtabf))
     {
+        ST_abort(
+            __FILE__,
+            __LINE__,
+            "endmntent fail"
+        );
         ST_logger_msg("endmntent fail", ST_MSG_ERROR);
     }
-    map_free_strings(me->entries);
+    // iterate over uthash and free
     pthread_mutex_destroy(&me->mutex);
     free(me);
 }

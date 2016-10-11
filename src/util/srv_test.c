@@ -2,6 +2,7 @@
 #include<stdio.h>
 #include <stdlib.h>
 #include<pthread.h>
+#include "common.h"
 #include "configure.h"
 #include "srv.h"
 
@@ -28,11 +29,11 @@ void* inc_interval(void *p)
     }
 }
 
-/* gcc -g -lconfig -lpthread srv_test.c srv.c configure.c  */
+/* gcc -g -lconfig -lpthread srv_test.c srv.c configure.c common.c */
 int  main(void)
 {
 
-    core_config = ST_new_config("../../../etc/stored.cfg");
+    core_config = ST_new_config("../../etc/stored.cfg");
     srv_buff = ST_init_srv(core_config);
     ST_start_srv(srv_buff);
 

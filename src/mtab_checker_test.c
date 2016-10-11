@@ -30,7 +30,7 @@ void* inc_interval(void *p)
 int  main(void)
 {
 
-    core_config = ST_new_config("../../etc/stored.cfg");
+    core_config = ST_new_config("../etc/stored.cfg");
     entries = ST_init_mtab_checker(core_config);
     pthread_t threads[NUM_THREADS];
     int rc;
