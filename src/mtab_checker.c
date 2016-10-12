@@ -12,19 +12,15 @@
 #include "util/common.h"
 #include "util/logger.h"
 
-//#define TYPE_EXC_LEN  3
-
 typedef struct mntent M_TAB;
 static FILE* mtabf;
 static struct statvfs s;
 static ST_CONFIG config;
-//static char type_exc[TYPE_EXC_LEN];
 
 ST_MTAB_ENTRIES ST_init_mtab_checker(ST_CONFIG c)
 {
     ST_MTAB_ENTRIES me;
     int pthread_stat;
-
     if(!c)
     {
         ST_abort(
@@ -56,6 +52,9 @@ ST_MTAB_ENTRIES ST_init_mtab_checker(ST_CONFIG c)
         );
     }
 
+    me->json_entries = json_mkarray();
+    me->textural = json_stringify(me->json_entries, "");
+
     pthread_stat = pthread_mutex_init(&me->mutex, NULL);
     if(pthread_stat)
     {
@@ -71,6 +70,7 @@ ST_MTAB_ENTRIES ST_init_mtab_checker(ST_CONFIG c)
 
 void ST_check_mtab(ST_MTAB_ENTRIES me)
 {
+    ST_lock(&me->mutex);
     M_TAB* mt;
     int free_percent, notice_level;
     rewind(mtabf);
@@ -79,7 +79,10 @@ void ST_check_mtab(ST_MTAB_ENTRIES me)
     notice_level = config->notice_percent;
     ST_unlock(&config->mutex);
 
-    ST_lock(&me->mutex);
+
+    free(me->textural);
+    json_delete(me->json_entries);
+    me->json_entries = json_mkarray();
     while((mt = getmntent(mtabf)))
     {
         if(0 == statvfs(mt->mnt_dir, &s))
@@ -99,10 +102,15 @@ void ST_check_mtab(ST_MTAB_ENTRIES me)
                         s.f_bavail * s.f_bsize
                     )
                 );
-//                if(notice_level  >= free_percent)
-//                {
-                    printf("%s - %d\n", mt->mnt_dir, free_percent);
-//                }
+                if(notice_level  >= free_percent)
+                {
+                    JsonNode* j_node = json_mkobject();
+                    JsonNode* m_point = json_mkstring(mt->mnt_dir);
+                    JsonNode* f_percent = json_mknumber((double) free_percent);
+                    json_append_member(j_node, "mount_point", m_point);
+                    json_append_member(j_node, "free_space", f_percent);
+                    json_append_element(me->json_entries, j_node);
+                }
             }
         }
         else
@@ -115,6 +123,7 @@ void ST_check_mtab(ST_MTAB_ENTRIES me)
             );
         }
     }
+    me->textural = json_stringify(me->json_entries, " ");
     ST_unlock(&me->mutex);
 }
 
@@ -129,7 +138,8 @@ void ST_destroy_mtab_checker(ST_MTAB_ENTRIES me)
         );
         ST_logger_msg("endmntent fail", ST_MSG_ERROR);
     }
-    // iterate over uthash and free
+    json_delete(me->json_entries);
+    free(me->textural);
     pthread_mutex_destroy(&me->mutex);
     free(me);
 }

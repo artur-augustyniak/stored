@@ -5,14 +5,11 @@
 #include "util/configure.h"
 #include "mtab_checker.h"
 
-#define THREAD_ITER 10
-#define NUM_THREADS 1
+#define THREAD_ITER 1000
+#define NUM_THREADS 20
 
 ST_CONFIG core_config = NULL;
 ST_MTAB_ENTRIES entries = NULL;
-
-
-
 
 void* inc_interval(void *p)
 {
@@ -23,11 +20,12 @@ void* inc_interval(void *p)
         ST_check_mtab(entries);
         ST_lock(&entries->mutex);
         pthread_yield();
+        printf("%s\n", entries->textural);
         ST_unlock(&entries->mutex);
     }
 }
 
-/* gcc -g -lconfig -lpthread mtab_checker_test.c mtab_checker.c util/configure.c util/logger.c util/sds.c util/common.c */
+/*  gcc -g -lconfig -lpthread mtab_checker_test.c mtab_checker.c util/configure.c util/logger.c util/sds.c util/common.c util/json.c */
 int  main(void)
 {
 
