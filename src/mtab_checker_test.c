@@ -3,9 +3,10 @@
 #include <stdlib.h>
 #include<pthread.h>
 #include "util/configure.h"
+#include "util/logger.h"
 #include "mtab_checker.h"
 
-#define THREAD_ITER 1000
+#define THREAD_ITER 10000
 #define NUM_THREADS 20
 
 ST_CONFIG core_config = NULL;
@@ -28,6 +29,9 @@ void* inc_interval(void *p)
 /*  gcc -g -lconfig -lpthread mtab_checker_test.c mtab_checker.c util/configure.c util/logger.c util/sds.c util/common.c util/json.c */
 int  main(void)
 {
+
+    ST_logger_init("test", ST_STDOUT);
+
 
     core_config = ST_new_config("../etc/stored.cfg");
     entries = ST_init_mtab_checker(core_config);
@@ -52,6 +56,7 @@ int  main(void)
 
     ST_destroy_mtab_checker(entries);
     ST_destroy_config(core_config);
+    ST_logger_destroy();
 
     /* Last thing that main(); should do */
     pthread_exit(NULL);

@@ -70,7 +70,7 @@ ST_MTAB_ENTRIES ST_init_mtab_checker(ST_CONFIG c)
 
 void ST_check_mtab(ST_MTAB_ENTRIES me)
 {
-    ST_lock(&me->mutex);
+
     M_TAB* mt;
     int free_percent, notice_level;
     rewind(mtabf);
@@ -79,8 +79,8 @@ void ST_check_mtab(ST_MTAB_ENTRIES me)
     notice_level = config->notice_percent;
     ST_unlock(&config->mutex);
 
+    ST_lock(&me->mutex);
 
-    free(me->textural);
     json_delete(me->json_entries);
     me->json_entries = json_mkarray();
     while((mt = getmntent(mtabf)))
@@ -115,14 +115,16 @@ void ST_check_mtab(ST_MTAB_ENTRIES me)
         }
         else
         {
-            ST_destroy_mtab_checker(me);
-            ST_abort(
-                __FILE__,
-                __LINE__,
-                "statvfs error"
-            );
+//            ST_destroy_mtab_checker(me);
+//            ST_abort(
+//                __FILE__,
+//                __LINE__,
+//                "statvfs error"
+//            );
+            ST_logger_msg("statvfs error", ST_MSG_WARN);
         }
     }
+    free(me->textural);
     me->textural = json_stringify(me->json_entries, " ");
     ST_unlock(&me->mutex);
 }
@@ -138,7 +140,9 @@ void ST_destroy_mtab_checker(ST_MTAB_ENTRIES me)
         );
         ST_logger_msg("endmntent fail", ST_MSG_ERROR);
     }
+//    if(me->json_entries)
     json_delete(me->json_entries);
+//    if(me->textural)
     free(me->textural);
     pthread_mutex_destroy(&me->mutex);
     free(me);
