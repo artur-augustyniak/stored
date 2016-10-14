@@ -115,12 +115,6 @@ void ST_check_mtab(ST_MTAB_ENTRIES me)
         }
         else
         {
-//            ST_destroy_mtab_checker(me);
-//            ST_abort(
-//                __FILE__,
-//                __LINE__,
-//                "statvfs error"
-//            );
             ST_logger_msg("statvfs error", ST_MSG_WARN);
         }
     }
@@ -138,11 +132,8 @@ void ST_destroy_mtab_checker(ST_MTAB_ENTRIES me)
             __LINE__,
             "endmntent fail"
         );
-        ST_logger_msg("endmntent fail", ST_MSG_ERROR);
     }
-//    if(me->json_entries)
     json_delete(me->json_entries);
-//    if(me->textural)
     free(me->textural);
     pthread_mutex_destroy(&me->mutex);
     free(me);

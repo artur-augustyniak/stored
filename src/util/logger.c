@@ -2,6 +2,7 @@
 #include <syslog.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "common.h"
 #include "logger.h"
 #include "sds.h"
 
@@ -22,6 +23,15 @@ void ST_logger_init(const char* name, ST_SINK type)
 
 void ST_logger_msg(char* msg, int type)
 {
+    if(!daemon_name || !sink_type)
+    {
+        printf("%d %s\n", sink_type, daemon_name);
+        ST_abort(
+            __FILE__,
+            __LINE__,
+            "Logger uninitialized"
+        );
+    }
     switch (sink_type)
     {
         case ST_STDOUT:

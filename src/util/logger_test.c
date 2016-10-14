@@ -2,15 +2,10 @@
 #include<stdio.h>
 #include <stdlib.h>
 #include<pthread.h>
-#include "util/configure.h"
-#include "util/logger.h"
-#include "mtab_checker.h"
+#include "logger.h"
 
-#define THREAD_ITER 1000
+#define THREAD_ITER 100
 #define NUM_THREADS 20
-
-ST_CONFIG core_config = NULL;
-ST_MTAB_ENTRIES entries = NULL;
 
 void* inc_interval(void *p)
 {
@@ -18,21 +13,20 @@ void* inc_interval(void *p)
     for(i=0; i < THREAD_ITER; i++)
     {
         printf("################ ENTRY ################\n");
-        ST_check_mtab(entries);
-        ST_lock(&entries->mutex);
-        pthread_yield();
-        printf("%s\n", entries->textural);
-        ST_unlock(&entries->mutex);
+        ST_logger_msg("logger test", ST_MSG_WARN);
+//        ST_check_mtab(entries);
+//        ST_lock(&entries->mutex);
+//        pthread_yield();
+//        printf("%s\n", entries->textural);
+//        ST_unlock(&entries->mutex);
     }
 }
 
-/*  gcc -g -lconfig -lpthread mtab_checker_test.c mtab_checker.c util/configure.c util/logger.c util/sds.c util/common.c util/json.c */
+/*  gcc -g -lconfig -lpthread logger_test.c logger.c sds.c common.c */
 int  main(void)
 {
 
     ST_logger_init("test", ST_STDOUT);
-    core_config = ST_new_config("../etc/stored.cfg");
-    entries = ST_init_mtab_checker(core_config);
     pthread_t threads[NUM_THREADS];
     int rc;
     long t;
@@ -51,9 +45,6 @@ int  main(void)
     for (i = 0; i < NUM_THREADS; i++) {
         pthread_join(threads[i], NULL);
     }
-
-    ST_destroy_mtab_checker(entries);
-    ST_destroy_config(core_config);
     ST_logger_destroy();
 
     /* Last thing that main(); should do */
