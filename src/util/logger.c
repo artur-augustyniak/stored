@@ -25,7 +25,6 @@ void ST_logger_msg(char* msg, int type)
 {
     if(!daemon_name || !sink_type)
     {
-        printf("%d %s\n", sink_type, daemon_name);
         ST_abort(
             __FILE__,
             __LINE__,

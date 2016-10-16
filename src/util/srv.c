@@ -56,6 +56,7 @@ static int quit(pthread_mutex_t *mtx)
 
 static void* serve(void* none)
 {
+
 //        sigemptyset(&set);
 //        sigaddset(&set, SIGPIPE);
 //        sigaddset(&set, SIGHUP);
@@ -161,6 +162,14 @@ static void* serve(void* none)
         }
 
         ST_lock(&srv_buffer->mutex);
+        if(!srv_buffer->data)
+        {
+            ST_abort(
+                __FILE__,
+                __LINE__,
+                "Srv buffer empty, please provide initial data"
+            );
+        }
         content_buffer = strdup(srv_buffer->data);
         ST_unlock(&srv_buffer->mutex);
         int len = strlen(content_buffer);
@@ -237,6 +246,15 @@ ST_SRV_BUFF ST_init_srv(ST_CONFIG c)
 
 void ST_start_srv(ST_SRV_BUFF b)
 {
+    if(!b)
+    {
+        ST_abort(
+            __FILE__,
+            __LINE__,
+            "Srv start (b) NPE"
+        );
+    }
+
     if(stopped)
     {
         int q_pthread_stat = pthread_mutex_init(&mxq,NULL);
