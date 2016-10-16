@@ -29,17 +29,18 @@ static  pthread_t srv_thread;
 static ST_SRV_BUFF srv_buffer;
 static char *content_buffer = NULL;
 static bool stopped = true;
+static sigset_t set;
 
 static void cerror(FILE *stream, char *cause, char *err, char *shortmsg, char *longmsg)
 {
   fprintf(stream, "HTTP/1.1 %s %s\n", err, shortmsg);
   fprintf(stream, "Content-type: text/html\n");
   fprintf(stream, "\n");
-  fprintf(stream, "<html><title>Tiny Error</title>");
+  fprintf(stream, "<html><title>Stored error</title>");
   fprintf(stream, "<body bgcolor=""ffffff"">\n");
   fprintf(stream, "%s: %s\n", err, shortmsg);
-  fprintf(stream, "<p>%s: %s\n", "sdf", cause);
-  fprintf(stream, "<hr><em>The Tiny Web server</em>\n");
+  fprintf(stream, "<p>%s: %s\n", "blah", cause);
+  fprintf(stream, "<hr><em>(_|_)</em>\n");
 }
 
 static int quit(pthread_mutex_t *mtx)
@@ -57,10 +58,9 @@ static int quit(pthread_mutex_t *mtx)
 static void* serve(void* none)
 {
 
-//        sigemptyset(&set);
-//        sigaddset(&set, SIGPIPE);
-//        sigaddset(&set, SIGHUP);
-//        pthread_sigmask(SIG_BLOCK, &set, NULL);
+    sigemptyset(&set);
+    sigaddset(&set, SIGPIPE);
+    pthread_sigmask(SIG_BLOCK, &set, NULL);
 
     /* variables for connection management */
     ST_lock(&config->mutex);
@@ -170,13 +170,14 @@ static void* serve(void* none)
                 "Srv buffer empty, please provide initial data"
             );
         }
+
         content_buffer = strdup(srv_buffer->data);
         ST_unlock(&srv_buffer->mutex);
         int len = strlen(content_buffer);
         fprintf(stream, "HTTP/1.1 200 OK\n");
         fprintf(stream, "Server: stored daemon\n");
         fprintf(stream, "Content-length: %d\n", len);
-        fprintf(stream, "Content-type: %s\n", "text/html");
+        fprintf(stream, "Content-type: %s\n", "text/json");
         fprintf(stream, "\r\n");
         //fflush(stream);
         fwrite(content_buffer, 1, len, stream);

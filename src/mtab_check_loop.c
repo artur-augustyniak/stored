@@ -108,7 +108,7 @@ void ST_check_loop(void)
             }
         }
 
-        ST_check_mtab(mtab_entries); //TS NO LOCK
+        ST_check_mtab(mtab_entries);
 
         ST_lock(&mtab_entries->mutex);
         json_foreach(entry, mtab_entries->json_entries)
