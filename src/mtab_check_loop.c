@@ -108,8 +108,6 @@ void ST_check_loop(void)
             }
         }
 
-        ST_check_mtab(mtab_entries);
-
         ST_lock(&mtab_entries->mutex);
         json_foreach(entry, mtab_entries->json_entries)
         {
@@ -144,17 +142,18 @@ void ST_check_loop(void)
                 ST_logger_msg("json_foreach: readout error", ST_MSG_WARN);
             }
         }
+        ST_unlock(&mtab_entries->mutex);
 
         switch(pthread_mutex_trylock(&srv_buff->mutex)) {
-            case 0:
-                srv_buff->data = mtab_entries->textural;
-                ST_unlock(&srv_buff->mutex);
-                break;
-            case EBUSY:
-                ST_logger_msg("srv_buff->mutex locked", ST_MSG_NOTICE);
-                break;
-          }
-        ST_unlock(&mtab_entries->mutex);
+        case 0:
+            ST_check_mtab(mtab_entries);
+            srv_buff->data = mtab_entries->textural;
+            ST_unlock(&srv_buff->mutex);
+            break;
+        case EBUSY:
+            ST_logger_msg("srv_buff->mutex locked", ST_MSG_NOTICE);
+            break;
+        }
 
         /* Ignore recved data */
         recv(pfd.fd, buf, sizeof(buf), MSG_DONTWAIT);

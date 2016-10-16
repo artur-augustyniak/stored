@@ -118,10 +118,8 @@ void ST_check_mtab(ST_MTAB_ENTRIES me)
             ST_logger_msg("statvfs error", ST_MSG_WARN);
         }
     }
-
-    char *tmp = me->textural;
+    free(me->textural);
     me->textural = json_stringify(me->json_entries, " ");
-    free(tmp);
     ST_unlock(&me->mutex);
 }
 
