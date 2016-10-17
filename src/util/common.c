@@ -1,7 +1,7 @@
 /* vim: set tabstop=2 expandtab: */
 #include <stdlib.h>
-#include "common.h"
 #include <error.h>
+#include "common.h"
 
 void ST_abort(const char *file, unsigned int line, const char *msg)
 {

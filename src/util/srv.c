@@ -17,6 +17,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "srv.h"
+#include "common.h"
 
 #define BUFSIZE 1024
 
@@ -85,7 +86,11 @@ static void* serve(void* none)
     parentfd = socket(AF_INET, SOCK_STREAM, 0);
     if (parentfd < 0)
     {
-        error("ERROR opening socket");
+        ST_abort(
+            __FILE__,
+            __LINE__,
+            "ERROR opening socket"
+        );
     }
 
     /* allows us to restart server immediately */
@@ -108,8 +113,13 @@ static void* serve(void* none)
 
     /* get us ready to accept connection requests */
     /* allow 5 requests to queue up */
-    if (listen(parentfd, 5) < 0){
-        error("ERROR on listen");
+    if (listen(parentfd, 5) < 0)
+    {
+        ST_abort(
+            __FILE__,
+            __LINE__,
+            "ERROR on listen."
+        );
     }
 
     /*
@@ -131,16 +141,30 @@ static void* serve(void* none)
         /* determine who sent the message */
         hostp = gethostbyaddr((const char *)&clientaddr.sin_addr.s_addr, sizeof(clientaddr.sin_addr.s_addr), AF_INET);
         if (hostp == NULL){
-            error("ERROR on gethostbyaddr");
+            ST_abort(
+                __FILE__,
+                __LINE__,
+                "ERROR on gethostbyaddr"
+            );
         }
         hostaddrp = inet_ntoa(clientaddr.sin_addr);
-        if (hostaddrp == NULL){
-          error("ERROR on inet_ntoa\n");
+        if (hostaddrp == NULL)
+        {
+            ST_abort(
+                __FILE__,
+                __LINE__,
+                "ERROR on inet_ntoa"
+            );
         }
 
         /* open the child socket descriptor as a stream */
-        if ((stream = fdopen(childfd, "r+")) == NULL){
-            error("ERROR on fdopen");
+        if ((stream = fdopen(childfd, "r+")) == NULL)
+        {
+            ST_abort(
+                __FILE__,
+                __LINE__,
+                "ERROR on fdopen"
+            );
         }
         /* get the HTTP request line */
         fgets(buf, BUFSIZE, stream);
@@ -207,7 +231,6 @@ ST_SRV_BUFF ST_init_srv(ST_CONFIG c)
 
     int server_enabled;
     int cb_pthread_stat;
-    int inet_aton_stat = 0;
     ST_SRV_BUFF content_buffer;
 
     ST_lock(&config->mutex);

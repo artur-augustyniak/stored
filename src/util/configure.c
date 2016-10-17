@@ -10,7 +10,7 @@
 static config_t cfg;
 static const char *file_path;
 
-static load_from_file(ST_CONFIG c)
+static void load_from_file(ST_CONFIG c)
 {
     int error_line = 0;
     const char *error_msg;

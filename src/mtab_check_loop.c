@@ -161,7 +161,7 @@ void ST_check_loop(void)
     close(pfd.fd);
 }
 
-void ST_break_checks_loop(void)
+void ST_break_check_loop(void)
 {
     active = false;
 }
