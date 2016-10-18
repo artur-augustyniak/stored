@@ -1,38 +1,40 @@
 /* vim: set tabstop=2 expandtab: */
-#include <config.h>
 #include <stdlib.h>
 #include <getopt.h>
 #include <stdio.h>
 #include <signal.h>
-#include <stdbool.h>
 #include <string.h>
+#include "util/common.h"
 #include "util/configure.h"
 #include "util/logger.h"
 #include "util/demonizer.h"
-#include "srv/srv.h"
-#include "mtab_check.h"
-#include "mtab_check_trigger.h"
+#include "util/srv.h"
+#include "mtab_checker.h"
+#include "mtab_check_loop.h"
 
-static bool active = true;
+
 static ST_CONFIG core_config = NULL;
+static ST_MTAB_ENTRIES entries = NULL;
 static ST_SRV_BUFF srv_buff = NULL;
 static char *conf_path;
 
 static void reload (void)
 {
     ST_logger_msg("daemon reloading.", ST_MSG_NOTICE);
-    ST_break_checks_loop();
+    ST_reload_config(core_config);
+    ST_restart_srv(srv_buff);
 }
 
 static void stop(void)
 {
     ST_logger_msg("daemon terminating.", ST_MSG_NOTICE);
-    active = false;
-    ST_break_checks_loop();
-    //ST_add_signal_hook(SIGINT, &ST_stop_server);
+    ST_break_check_loop();
 }
 
-
+#define PACKAGE_NAME "stored 0.2"
+/*
+ * gcc -std=gnu11 -Wall -pedantic -g -lsystemd -lconfig -pthread stored.c mtab_check_loop.c mtab_checker.c util/configure.c util/logger.c util/sds.c util/common.c util/json.c util/srv.c util/demonizer.c
+ */
 int main(int argc, char *argv[])
 {
     int opt;
@@ -52,25 +54,25 @@ int main(int argc, char *argv[])
                 ST_demonize();
                 ST_logger_msg("daemon started.", ST_MSG_NOTICE);
 
-                conf = ST_new_config(optarg);
-                srv_buff = ST_init_srv(conf);
+                core_config = ST_new_config(conf_path);
+                entries = ST_init_mtab_checker(core_config);
+                srv_buff = ST_init_srv(core_config);
+                srv_buff->data = "{}";
+                ST_start_srv(srv_buff);
+                ST_init_check_loop(core_config, srv_buff, entries);
 
-                while(active)
-                {
-                    ST_init_checks_loop(conf);
-                    ST_init_check_mtab(conf);
-                    ST_restart_srv(srv_buff);
-                    ST_checks_loop(&ST_check_mtab, conf->timeout);
-                    conf = ST_new_config(optarg);
-                    ST_destroy_check_mtab();
-                }
+                ST_check_loop();
+
+                ST_stop_srv(srv_buff);
                 ST_destroy_srv(srv_buff);
-                ST_destroy_config(conf);
-                ST_logger_msg("daemon terminated.", ST_MSG_NOTICE);
+                ST_destroy_mtab_checker(entries);
 
+                ST_destroy_config(core_config);
+                ST_logger_msg("daemon terminated.", ST_MSG_NOTICE);
 
                 ST_destroy_demonizer();
                 ST_logger_destroy();
+
                 free(conf_path);
                 exit(EXIT_SUCCESS);
             }

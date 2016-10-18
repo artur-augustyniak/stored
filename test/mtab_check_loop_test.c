@@ -1,8 +1,11 @@
 /* vim: set tabstop=2 expandtab: */
 #include<stdio.h>
 #include <stdlib.h>
-#include<pthread.h>
+#define __USE_GNU
+#include <pthread.h>
+#undef __USE_GNU
 #include <signal.h>
+#include "util/common.h"
 #include "util/configure.h"
 #include "util/logger.h"
 #include "util/srv.h"
@@ -27,7 +30,7 @@ static void reload(int sig)
 static void stop(int sig)
 {
     ST_logger_msg("daemon terminating.", ST_MSG_NOTICE);
-    ST_break_checks_loop();
+    ST_break_check_loop();
 }
 
 void* inc_interval(void *p)
@@ -42,10 +45,11 @@ void* inc_interval(void *p)
         printf("%s\n", entries->textural);
         ST_unlock(&entries->mutex);
     }
+    return NULL;
 }
 
 /*
-gcc -g -lconfig -lpthread mtab_check_loop_test.c mtab_check_loop.c mtab_checker.c util/configure.c util/logger.c util/sds.c util/common.c util/json.c util/srv.c
+gcc -std=gnu11 -Wall -pedantic -g -lconfig -pthread mtab_check_loop_test.c mtab_check_loop.c mtab_checker.c util/configure.c util/logger.c util/sds.c util/common.c util/json.c util/srv.c
 valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes -v ./a.out
 kill -SIGINT `ps aux | grep "a\.out" | awk '{print $2}'`
  */
