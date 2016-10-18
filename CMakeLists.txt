@@ -15,4 +15,4 @@ include_directories(include)
 #However, the file(GLOB...) allows for wildcard additions:
 file(GLOB SOURCES "src/*.c")
 
-add_executable(hello ${SOURCES})
+add_executable(stored ${SOURCES})
