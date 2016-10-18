@@ -1172,9 +1172,11 @@ void emit_string(SB *out, const char *str)
 						strcpy(b, "\\uFFFD");
 						b += 6;
 					} else {
+					    #pragma GCC diagnostic ignored "-Woverflow"
 						*b++ = 0xEF;
 						*b++ = 0xBF;
 						*b++ = 0xBD;
+                        #pragma GCC diagnostic pop
 					}
 					s++;
 				} else if (c < 0x1F || (c >= 0x80 && escape_unicode)) {

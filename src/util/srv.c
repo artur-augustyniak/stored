@@ -228,21 +228,10 @@ ST_SRV_BUFF ST_init_srv(ST_CONFIG c)
     }
 
     config = c;
-
-    int server_enabled;
     int cb_pthread_stat;
     ST_SRV_BUFF content_buffer;
-
-    ST_lock(&config->mutex);
-    server_enabled = c->http_enabled;
-    ST_unlock(&config->mutex);
-
-    if(!server_enabled)
-    {
-        return NULL;
-    }
-
     content_buffer = (ST_SRV_BUFF) malloc(sizeof(ST_SERVER_BUFFER));
+    
     if(!content_buffer)
     {
         ST_abort(
@@ -278,8 +267,11 @@ void ST_start_srv(ST_SRV_BUFF b)
             "Srv start (b) NPE"
         );
     }
-
-    if(stopped)
+    int enabled = 0;
+    ST_lock(&config->mutex);
+    enabled = config->http_enabled;
+    ST_unlock(&config->mutex);
+    if(stopped && enabled)
     {
         int q_pthread_stat = pthread_mutex_init(&mxq,NULL);
         if(q_pthread_stat)

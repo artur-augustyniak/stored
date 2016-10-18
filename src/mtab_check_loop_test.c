@@ -49,7 +49,7 @@ void* inc_interval(void *p)
 }
 
 /*
-gcc -std=gnu99 -Wall -g -lconfig -pthread mtab_check_loop_test.c mtab_check_loop.c mtab_checker.c util/configure.c util/logger.c util/sds.c util/common.c util/json.c util/srv.c
+gcc -std=gnu11 -Wall -pedantic -g -lconfig -pthread mtab_check_loop_test.c mtab_check_loop.c mtab_checker.c util/configure.c util/logger.c util/sds.c util/common.c util/json.c util/srv.c
 valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes -v ./a.out
 kill -SIGINT `ps aux | grep "a\.out" | awk '{print $2}'`
  */
