@@ -64,3 +64,4 @@ Makefile.in
 .idea
 build/*
 !build/.gitkeep
+Testing/*

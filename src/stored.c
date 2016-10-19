@@ -31,10 +31,6 @@ static void stop(void)
     ST_break_check_loop();
 }
 
-#define PACKAGE_NAME "stored 0.2"
-/*
- * gcc -std=gnu11 -Wall -pedantic -g -lsystemd -lconfig -pthread stored.c mtab_check_loop.c mtab_checker.c util/configure.c util/logger.c util/sds.c util/common.c util/json.c util/srv.c util/demonizer.c
- */
 int main(int argc, char *argv[])
 {
     int opt;
@@ -46,7 +42,7 @@ int main(int argc, char *argv[])
             conf_path = strdup(optarg);
             if(conf_path)
             {
-                ST_logger_init(PACKAGE_NAME, ST_STDOUT);
+                ST_logger_init(ST_NAME, ST_STDOUT);
                 ST_init_demonizer(ST_NOTIFY);
 
                 ST_add_signal_hook(SIGINT, &stop);
