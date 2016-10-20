@@ -68,7 +68,6 @@ static void* serve(void* none)
     int portno = config->http_port;            /* port to listen on */
     ST_unlock(&config->mutex);
     socklen_t  clientlen;         /* byte size of client's address */
-    struct hostent *hostp; /* client host info */
     char *hostaddrp;       /* dotted decimal host addr string */
     int optval;            /* flag value for setsockopt */
     struct sockaddr_in serveraddr; /* server's addr */
@@ -137,16 +136,7 @@ static void* serve(void* none)
             //error("ERROR on accept");
             break;
         }
-
-        /* determine who sent the message */
-        hostp = gethostbyaddr((const char *)&clientaddr.sin_addr.s_addr, sizeof(clientaddr.sin_addr.s_addr), AF_INET);
-        if (hostp == NULL){
-            ST_abort(
-                __FILE__,
-                __LINE__,
-                "ERROR on gethostbyaddr"
-            );
-        }
+        
         hostaddrp = inet_ntoa(clientaddr.sin_addr);
         if (hostaddrp == NULL)
         {
