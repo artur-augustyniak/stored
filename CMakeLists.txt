@@ -23,16 +23,18 @@ set(GCC_LINK_FLAGS "-lsystemd -lconfig -pthread")
 file(GLOB_RECURSE SOURCES "src/*.c")
 file(GLOB_RECURSE TEST_SOURCES "test/misc/*.c")
 
-# Set the output folder where your program will be created
-set(CMAKE_BINARY_DIR build)
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
-# Set custom cmake modules path
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
-# make
 find_package(LibConfig)
 include_directories(${LibConfig_INCLUDE_DIRS})
 set(LIBS ${LIBS} ${LibConfig_LIBRARIES})
+
+# Set the output folder where your program will be created
+set(CMAKE_BINARY_DIR build)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+
+# make
 add_executable(stored ${SOURCES})
 set_target_properties(stored PROPERTIES COMPILE_FLAGS ${GCC_COMPILE_FLAGS} LINK_FLAGS ${GCC_LINK_FLAGS})
 
