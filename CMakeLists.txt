@@ -1,14 +1,9 @@
-# BUILD
 cmake_minimum_required(VERSION 2.8.11)
 project(stored)
 
 set(ST_NAME ${PROJECT_NAME})
 set(ST_VERSION 0.2)
 add_definitions( -DST_NAME="${ST_NAME} ${ST_VERSION}" )
-
-# Set the output folder where your program will be created
-set(CMAKE_BINARY_DIR build)
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 # Set the compiler and linker flags
 set(GCC_COMPILE_FLAGS "-std=gnu11 -Wall -pedantic")
@@ -27,6 +22,12 @@ set(GCC_LINK_FLAGS "-lsystemd -lconfig -pthread")
 # However, the file(GLOB... GLOB_RECURSE) allows for wildcard additions:
 file(GLOB_RECURSE SOURCES "src/*.c")
 file(GLOB_RECURSE TEST_SOURCES "test/misc/*.c")
+
+find_package (Threads REQUIRED)
+
+# Set the output folder where your program will be created
+set(CMAKE_BINARY_DIR build)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 # make
 add_executable(stored ${SOURCES})
