@@ -44,9 +44,20 @@ add_test(NAME JsonTest COMMAND ./build/json_test)
 add_custom_target(valgrind COMMAND ./test/scripts/memory_leaks.sh)
 
 # INSTALL
+# xargs rm < install_manifest.txt
 # $ cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr . && make all install
 # Would configure the project, build all targets and install to the /usr prefix.
 # The type (PATH) is not strictly necessary,
 # but would cause the Qt based cmake-gui to present the directory chooser dialog.
-install(TARGETS stored DESTINATION /usr/local/sbin COMPONENT binaries)
+install(TARGETS stored DESTINATION sbin COMPONENT binaries)
 install(FILES etc/stored.cfg DESTINATION etc COMPONENT config)
+
+# if(USE_SYSTEMD)
+find_package(PkgConfig REQUIRED)
+# check systemd
+pkg_check_modules(SYSTEMD "libsystemd-login libsystemd-daemon" REQUIRED)
+# find systemd unit dir
+execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
+string(REGEX REPLACE "[ \t\n]+" \; SYSTEMD_SYSTEM_UNIT_DIR "${SYSTEMD_SYSTEM_UNIT_DIR}")
+install(FILES systemd/stored.service DESTINATION ${SYSTEMD_SYSTEM_UNIT_DIR})
+# endif(USE_SYSTEMD)
