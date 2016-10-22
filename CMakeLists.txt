@@ -14,6 +14,11 @@ set(GCC_LINK_FLAGS "-lsystemd -lconfig -pthread")
 set(TEST_GCC_COMPILE_FLAGS "-std=gnu11 -Wall -pedantic -g")
 set(TEST_GCC_LINK_FLAGS "-pthread -lm")
 
+# Set default install prefix
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set (CMAKE_INSTALL_PREFIX "/" CACHE PATH "default install path" FORCE)
+endif()
+
 # Required libs
 find_package (Threads REQUIRED)
 find_package(LibConfig REQUIRED)
