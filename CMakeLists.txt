@@ -56,7 +56,7 @@ add_custom_target(valgrind COMMAND ./test/scripts/memory_leaks.sh)
 # but would cause the Qt based cmake-gui to present the directory chooser dialog.
 install(TARGETS stored DESTINATION sbin COMPONENT binaries)
 install(FILES etc/stored.cfg DESTINATION etc COMPONENT config)
-install(FILES man/stored.8 DESTINATION ${MAN_INSTALL_DIR}/man8/)
+install(FILES man/stored.8 DESTINATION usr/share/man/man8/)
 
 # if(USE_SYSTEMD)
 find_package(PkgConfig REQUIRED)
