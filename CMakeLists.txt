@@ -28,10 +28,6 @@ file(GLOB_RECURSE SOURCES "src/*.c")
 file(GLOB_RECURSE TEST_SOURCES "test/misc/*.c")
 
 # BUILD [make]
-# $ cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr . && make all install
-# Would configure the project, build all targets and install to the /usr prefix.
-# The type (PATH) is not strictly necessary,
-# but would cause the Qt based cmake-gui to present the directory chooser dialog.
 add_executable(stored ${SOURCES})
 set_target_properties(stored PROPERTIES COMPILE_FLAGS ${GCC_COMPILE_FLAGS} LINK_FLAGS ${GCC_LINK_FLAGS})
 
@@ -46,3 +42,11 @@ add_test(NAME JsonTest COMMAND ./build/json_test)
 
 # PHONY TARGET
 add_custom_target(valgrind COMMAND ./test/scripts/memory_leaks.sh)
+
+# INSTALL
+# $ cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr . && make all install
+# Would configure the project, build all targets and install to the /usr prefix.
+# The type (PATH) is not strictly necessary,
+# but would cause the Qt based cmake-gui to present the directory chooser dialog.
+install(TARGETS stored DESTINATION /usr/local/sbin COMPONENT binaries)
+install(FILES etc/stored.cfg DESTINATION etc COMPONENT config)
