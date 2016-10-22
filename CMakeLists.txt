@@ -25,8 +25,10 @@ find_package(LibConfig REQUIRED)
 find_package(Systemd REQUIRED)
 
 # Set the output folder where your program will be created
-set(CMAKE_BINARY_DIR build)
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
+set(CPACK_OUTPUT_FILE_PREFIX build)
 
 # Sources
 file(GLOB_RECURSE SOURCES "src/*.c")
@@ -67,3 +69,13 @@ execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir
 string(REGEX REPLACE "[ \t\n]+" \; SYSTEMD_SYSTEM_UNIT_DIR "${SYSTEMD_SYSTEM_UNIT_DIR}")
 install(FILES systemd/stored.service DESTINATION ${SYSTEMD_SYSTEM_UNIT_DIR})
 # endif(USE_SYSTEMD)
+
+set(CPACK_GENERATOR "RPM")
+# set(CPACK_PACKAGE_VERSION ${VERSION})
+# set(CPACK_PACKAGE_NAME "stored")
+# set(CPACK_PACKAGE_RELEASE 1)
+# set(CPACK_PACKAGE_CONTACT "Artur Augustyniak <artur@aaugustyniak.pl>")
+# set(CPACK_PACKAGE_VENDOR "Artur Augustyniak")
+# set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+# set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
+include(CPack)

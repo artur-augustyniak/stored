@@ -65,3 +65,6 @@ Makefile.in
 build/*
 !build/.gitkeep
 Testing/*
+CPackConfig.cmake
+CPackSourceConfig.cmake
+_CPack_Packages
