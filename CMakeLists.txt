@@ -5,6 +5,16 @@ set(ST_NAME ${PROJECT_NAME})
 set(ST_VERSION 0.2)
 add_definitions( -DST_NAME="${ST_NAME} ${ST_VERSION}")
 
+# cmake -D CMAKE_BUILD_TYPE=Debug .
+# cmake .
+# make VERBOSE=1
+# Or you can add -DCMAKE_VERBOSE_MAKEFILE=ON to the cmake command for permanent verbose command output from the generated Makefiles.
+# cmake -DCMAKE_VERBOSE_MAKEFILE=ON .
+# make
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif(NOT CMAKE_BUILD_TYPE)
+
 # Custom cmake modules
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
@@ -13,6 +23,8 @@ set(GCC_COMPILE_FLAGS "-std=gnu11 -Wall -pedantic")
 set(GCC_LINK_FLAGS "-lsystemd -lconfig -pthread")
 set(TEST_GCC_COMPILE_FLAGS "-std=gnu11 -Wall -pedantic -g")
 set(TEST_GCC_LINK_FLAGS "-pthread -lm")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
 
 # Set default install prefix
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -70,12 +82,21 @@ string(REGEX REPLACE "[ \t\n]+" \; SYSTEMD_SYSTEM_UNIT_DIR "${SYSTEMD_SYSTEM_UNI
 install(FILES systemd/stored.service DESTINATION ${SYSTEMD_SYSTEM_UNIT_DIR})
 # endif(USE_SYSTEMD)
 
-set(CPACK_GENERATOR "RPM")
-set(CPACK_PACKAGE_VERSION ${VERSION})
-set(CPACK_PACKAGE_NAME "stored")
-set(CPACK_PACKAGE_RELEASE 1)
-set(CPACK_PACKAGE_CONTACT "Artur Augustyniak <artur@aaugustyniak.pl>")
-set(CPACK_PACKAGE_VENDOR "Artur Augustyniak")
-set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
+
+# PACKAGING
+SET(CPACK_GENERATOR "DEB")
+SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Artur Augustyniak <artur@aaugustyniak.pl>")
+set(CPACK_PACKAGE_VERSION_MAJOR "0")
+set(CPACK_PACKAGE_VERSION_MINOR "2")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
+# set(CPACK_DEBIAN_PACKAGE_DEPENDS "cssrobopec,libqt4-xml,libqt4-network,libqtgui4,treeupdatablereeti")
+set(CPACK_PACKAGE_DESCRIPTION "Mount point monitoring daemon.")
+set(CPACK_PACKAGE_CONTACT "Artur Augustyniak artur@aaugustyniak.pl")
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/Debian/postinst")
+# if(ARCHITECTURE MATCHES ".*x86_64.*")
+    set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+# else()
+    #set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
+# endif()
+
 include(CPack)
