@@ -11,8 +11,12 @@ It has also tiny builtin web server so you can get your warnings in restfull man
 
 ## Compilile and run
 ```
+cmake .
+make
+make install
 ```
 
 ## Tests
 ```
+make tests
 ```
