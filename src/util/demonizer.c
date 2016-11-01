@@ -16,69 +16,52 @@ static ST_signal_hook sighup_hooks[HOOKS_NUM] = {NULL};
 static int int_hook_idx = 0;
 static int hup_hook_idx = 0;
 
-void ST_init_demonizer(ST_OP_MODE mode)
-{
+void ST_init_demonizer(ST_OP_MODE mode) {
     op_mode = mode;
 }
 
-static void sighup_handler(int sig)
-{
-    for(int i = 0; i < HOOKS_NUM; i++)
-    {
-        if(NULL != sighup_hooks[i])
-        {
+static void sighup_handler(int sig) {
+    for (int i = 0; i < HOOKS_NUM; i++) {
+        if (NULL != sighup_hooks[i]) {
             sighup_hooks[i]();
         }
     }
 }
 
-static void sigint_handler(int sig)
-{
-    for(int i = 0; i < HOOKS_NUM; i++)
-    {
-        if(NULL != sigint_hooks[i])
-        {
+static void sigint_handler(int sig) {
+    for (int i = 0; i < HOOKS_NUM; i++) {
+        if (NULL != sigint_hooks[i]) {
             sigint_hooks[i]();
         }
     }
 }
 
-int ST_add_signal_hook(int sig, void (*signal_hook)(void))
-{
-    switch (sig)
-    {
+int ST_add_signal_hook(int sig, void (*signal_hook)(void)) {
+    switch (sig) {
         case SIGINT:
-            if(int_hook_idx < HOOKS_NUM)
-            {
+            if (int_hook_idx < HOOKS_NUM) {
                 sigint_hooks[int_hook_idx++] = signal_hook;
-                 return 0;
-            }
-            else
-            {
+                return 0;
+            } else {
                 return 1;
             }
-        break;
+            break;
         case SIGHUP:
-            if(hup_hook_idx < HOOKS_NUM)
-            {
+            if (hup_hook_idx < HOOKS_NUM) {
                 sighup_hooks[hup_hook_idx++] = signal_hook;
                 return 0;
-            }
-            else
-            {
+            } else {
                 return 1;
             }
-        break;
+            break;
         default:
             ST_logger_msg("Unsupported signal type", ST_MSG_ERROR);
     }
     return 1;
 }
 
-void ST_demonize(void)
-{
-    if(demonized)
-    {
+void ST_demonize(void) {
+    if (demonized) {
         return;
     }
 
@@ -90,14 +73,12 @@ void ST_demonize(void)
     bool _sd_booted = sd_booted();
     pid_t pid;
 
-    switch (op_mode)
-    {
+    switch (op_mode) {
         case ST_NOTIFY:
-            if(_sd_booted)
-            {
+            if (_sd_booted) {
                 sd_notify(1, "READY=1");
             }
-        break;
+            break;
         case ST_FORKING:
             pid = fork();
             if (pid < 0)
@@ -114,19 +95,17 @@ void ST_demonize(void)
             umask(066);
             chdir("/tmp");
             int x;
-            for (x = sysconf(_SC_OPEN_MAX); x>0; x--)
-            {
+            for (x = sysconf(_SC_OPEN_MAX); x > 0; x--) {
                 close(x);
             }
-        break;
+            break;
         default:
             ST_logger_msg("Unsupported operation type", ST_MSG_ERROR);
     }
     demonized = true;
 }
 
-void ST_destroy_demonizer(void)
-{
+void ST_destroy_demonizer(void) {
     //unsupported
 }
 

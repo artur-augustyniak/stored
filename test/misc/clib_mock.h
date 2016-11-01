@@ -4,16 +4,14 @@ unsigned int openlog_call_counter = 0;
 unsigned int closelog_call_counter = 0;
 unsigned int syslog_call_counter = 0;
 
-void openlog(const char *ident, int option, int facility)
-{
+void openlog(const char *ident, int option, int facility) {
     openlog_call_counter++;
 }
 
-void closelog(void)
-{
+void closelog(void) {
     closelog_call_counter++;
 }
 
-void syslog(int priority, const char *format, ...){
+void syslog(int priority, const char *format, ...) {
     syslog_call_counter++;
 }

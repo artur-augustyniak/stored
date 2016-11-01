@@ -1,6 +1,7 @@
 /* vim: set tabstop=2 expandtab: */
 #ifndef ST_COMMON_H
 #define ST_COMMON_H
+
 #include<pthread.h>
 
 #define ERR_STATUS  1

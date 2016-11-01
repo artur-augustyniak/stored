@@ -1,12 +1,13 @@
+/* vim: set tabstop=2 expandtab: */
 #ifndef MTAB_CHECKER_H
 #define MTAB_CHECKER_H
+
 #include <linux/limits.h>
 #include "util/configure.h"
 #include "util/json.h"
 
 
-typedef struct _MTAB_ENTRIES
-{
+typedef struct _MTAB_ENTRIES {
     char *textural;
     JsonNode *json_entries;
     pthread_mutex_t mutex;

@@ -1,3 +1,4 @@
+/* vim: set tabstop=2 expandtab: */
 /*
   Copyright (C) 2011 Joseph A. Adams (joeyadams3.14159@gmail.com)
   All rights reserved.
@@ -28,78 +29,90 @@
 #include <stddef.h>
 
 typedef enum {
-	JSON_NULL,
-	JSON_BOOL,
-	JSON_STRING,
-	JSON_NUMBER,
-	JSON_ARRAY,
-	JSON_OBJECT,
+    JSON_NULL,
+    JSON_BOOL,
+    JSON_STRING,
+    JSON_NUMBER,
+    JSON_ARRAY,
+    JSON_OBJECT,
 } JsonTag;
 
 typedef struct JsonNode JsonNode;
 
-struct JsonNode
-{
-	/* only if parent is an object or array (NULL otherwise) */
-	JsonNode *parent;
-	JsonNode *prev, *next;
-	
-	/* only if parent is an object (NULL otherwise) */
-	char *key; /* Must be valid UTF-8. */
-	
-	JsonTag tag;
-	union {
-		/* JSON_BOOL */
-		bool bool_;
-		
-		/* JSON_STRING */
-		char *string_; /* Must be valid UTF-8. */
-		
-		/* JSON_NUMBER */
-		double number_;
-		
-		/* JSON_ARRAY */
-		/* JSON_OBJECT */
-		struct {
-			JsonNode *head, *tail;
-		} children;
-	};
+struct JsonNode {
+    /* only if parent is an object or array (NULL otherwise) */
+    JsonNode *parent;
+    JsonNode *prev, *next;
+
+    /* only if parent is an object (NULL otherwise) */
+    char *key; /* Must be valid UTF-8. */
+
+    JsonTag tag;
+    union {
+        /* JSON_BOOL */
+        bool bool_;
+
+        /* JSON_STRING */
+        char *string_; /* Must be valid UTF-8. */
+
+        /* JSON_NUMBER */
+        double number_;
+
+        /* JSON_ARRAY */
+        /* JSON_OBJECT */
+        struct {
+            JsonNode *head, *tail;
+        } children;
+    };
 };
 
 /*** Encoding, decoding, and validation ***/
 
-JsonNode   *json_decode         (const char *json);
-char       *json_encode         (const JsonNode *node);
-char       *json_encode_string  (const char *str);
-char       *json_stringify      (const JsonNode *node, const char *space);
-void        json_delete         (JsonNode *node);
+JsonNode *json_decode(const char *json);
 
-bool        json_validate       (const char *json);
+char *json_encode(const JsonNode *node);
+
+char *json_encode_string(const char *str);
+
+char *json_stringify(const JsonNode *node, const char *space);
+
+void json_delete(JsonNode *node);
+
+bool json_validate(const char *json);
 
 /*** Lookup and traversal ***/
 
-JsonNode   *json_find_element   (JsonNode *array, int index);
-JsonNode   *json_find_member    (JsonNode *object, const char *key);
+JsonNode *json_find_element(JsonNode *array, int index);
 
-JsonNode   *json_first_child    (const JsonNode *node);
+JsonNode *json_find_member(JsonNode *object, const char *key);
+
+JsonNode *json_first_child(const JsonNode *node);
 
 #define json_foreach(i, object_or_array)            \
-	for ((i) = json_first_child(object_or_array);   \
-		 (i) != NULL;                               \
-		 (i) = (i)->next)
+    for ((i) = json_first_child(object_or_array);   \
+         (i) != NULL;                               \
+         (i) = (i)->next)
 
 /*** Construction and manipulation ***/
 
 JsonNode *json_mknull(void);
+
 JsonNode *json_mkbool(bool b);
+
 JsonNode *json_mkstring(const char *s);
+
 JsonNode *json_mknumber(double n);
+
 JsonNode *json_mkarray(void);
+
 JsonNode *json_mkobject(void);
 
 void json_append_element(JsonNode *array, JsonNode *element);
+
 void json_prepend_element(JsonNode *array, JsonNode *element);
+
 void json_append_member(JsonNode *object, const char *key, JsonNode *value);
+
 void json_prepend_member(JsonNode *object, const char *key, JsonNode *value);
 
 void json_remove_from_parent(JsonNode *node);

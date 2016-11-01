@@ -10,11 +10,9 @@
 
 ST_CONFIG core_config = NULL;
 
-void* inc_interval(void *p)
-{
+void *inc_interval(void *p) {
     int i;
-    for(i=0; i < THREAD_ITER; i++)
-    {
+    for (i = 0; i < THREAD_ITER; i++) {
         ST_lock(&core_config->mutex);
         core_config->interval++;
         ST_unlock(&core_config->mutex);
@@ -22,19 +20,16 @@ void* inc_interval(void *p)
 }
 
 /* gcc -g -lconfig -lpthread configure_test.c configure.c common.c */
-int  main(void)
-{
+int main(void) {
 
     core_config = ST_new_config("../../etc/stored.cfg");
 
     pthread_t threads[NUM_THREADS];
     int rc;
     long t;
-    for(t=0; t<NUM_THREADS; t++)
-    {
-        rc = pthread_create(&threads[t], NULL, &inc_interval, (void *)t);
-        if (rc)
-        {
+    for (t = 0; t < NUM_THREADS; t++) {
+        rc = pthread_create(&threads[t], NULL, &inc_interval, (void *) t);
+        if (rc) {
             printf("ERROR; return code from pthread_create() is %d\n", rc);
             exit(-1);
         }

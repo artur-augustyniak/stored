@@ -1,9 +1,13 @@
 /* vim: set tabstop=2 expandtab: */
 #include<stdio.h>
 #include <stdlib.h>
+
 #define __USE_GNU
+
 #include <pthread.h>
+
 #undef __USE_GNU
+
 #include <signal.h>
 #include "util/common.h"
 #include "util/configure.h"
@@ -20,24 +24,20 @@ ST_CONFIG core_config = NULL;
 ST_MTAB_ENTRIES entries = NULL;
 ST_SRV_BUFF srv_buff = NULL;
 
-static void reload(int sig)
-{
+static void reload(int sig) {
     ST_logger_msg("daemon reloading.", ST_MSG_NOTICE);
     ST_reload_config(core_config);
     ST_restart_srv(srv_buff);
 }
 
-static void stop(int sig)
-{
+static void stop(int sig) {
     ST_logger_msg("daemon terminating.", ST_MSG_NOTICE);
     ST_break_check_loop();
 }
 
-void* inc_interval(void *p)
-{
+void *inc_interval(void *p) {
     int i;
-    for(i=0; i < THREAD_ITER; i++)
-    {
+    for (i = 0; i < THREAD_ITER; i++) {
         printf("################ ENTRY ################\n");
         ST_check_mtab(entries);
         ST_lock(&entries->mutex);
@@ -53,8 +53,7 @@ gcc -std=gnu11 -Wall -pedantic -g -lconfig -pthread mtab_check_loop_test.c mtab_
 valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes -v ./a.out
 kill -SIGINT `ps aux | grep "a\.out" | awk '{print $2}'`
  */
-int  main(void)
-{
+int main(void) {
 
     signal(SIGINT, &stop);
     signal(SIGHUP, &reload);

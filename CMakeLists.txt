@@ -3,7 +3,7 @@ project(stored)
 
 set(ST_NAME ${PROJECT_NAME})
 set(ST_VERSION 0.2)
-add_definitions( -DST_NAME="${ST_NAME} ${ST_VERSION}")
+add_definitions(-DST_NAME="${ST_NAME} ${ST_VERSION}")
 
 # cmake -D CMAKE_BUILD_TYPE=Debug .
 # cmake .
@@ -11,9 +11,9 @@ add_definitions( -DST_NAME="${ST_NAME} ${ST_VERSION}")
 # Or you can add -DCMAKE_VERBOSE_MAKEFILE=ON to the cmake command for permanent verbose command output from the generated Makefiles.
 # cmake -DCMAKE_VERBOSE_MAKEFILE=ON .
 # make
-if(NOT CMAKE_BUILD_TYPE)
+if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
-endif(NOT CMAKE_BUILD_TYPE)
+endif (NOT CMAKE_BUILD_TYPE)
 
 # Custom cmake modules
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
@@ -28,11 +28,11 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
 
 # Set default install prefix
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set (CMAKE_INSTALL_PREFIX "/" CACHE PATH "default install path" FORCE)
-endif()
+    set(CMAKE_INSTALL_PREFIX "/" CACHE PATH "default install path" FORCE)
+endif ()
 
 # Required libs
-find_package (Threads REQUIRED)
+find_package(Threads REQUIRED)
 find_package(LibConfig REQUIRED)
 find_package(Systemd REQUIRED)
 
@@ -94,9 +94,9 @@ set(CPACK_PACKAGE_DESCRIPTION "Mount point monitoring daemon.")
 set(CPACK_PACKAGE_CONTACT "Artur Augustyniak artur@aaugustyniak.pl")
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/Debian/postinst")
 # if(ARCHITECTURE MATCHES ".*x86_64.*")
-    set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
 # else()
-    #set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
+#set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
 # endif()
 
 include(CPack)

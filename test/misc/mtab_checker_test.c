@@ -12,11 +12,9 @@
 ST_CONFIG core_config = NULL;
 ST_MTAB_ENTRIES entries = NULL;
 
-void* inc_interval(void *p)
-{
+void *inc_interval(void *p) {
     int i;
-    for(i=0; i < THREAD_ITER; i++)
-    {
+    for (i = 0; i < THREAD_ITER; i++) {
         printf("################ ENTRY ################\n");
         ST_check_mtab(entries);
         ST_lock(&entries->mutex);
@@ -27,8 +25,7 @@ void* inc_interval(void *p)
 }
 
 /*  gcc -g -lconfig -lpthread mtab_checker_test.c mtab_checker.c util/configure.c util/logger.c util/sds.c util/common.c util/json.c */
-int  main(void)
-{
+int main(void) {
 
     ST_logger_init("test", ST_STDOUT);
     core_config = ST_new_config("../etc/stored.cfg");
@@ -36,11 +33,9 @@ int  main(void)
     pthread_t threads[NUM_THREADS];
     int rc;
     long t;
-    for(t=0; t<NUM_THREADS; t++)
-    {
-        rc = pthread_create(&threads[t], NULL, &inc_interval, (void *)t);
-        if (rc)
-        {
+    for (t = 0; t < NUM_THREADS; t++) {
+        rc = pthread_create(&threads[t], NULL, &inc_interval, (void *) t);
+        if (rc) {
             printf("ERROR; return code from pthread_create() is %d\n", rc);
             exit(-1);
         }

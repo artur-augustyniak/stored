@@ -25,8 +25,8 @@
 
 include(FeatureSummary)
 set_package_properties(Systemd PROPERTIES
-   URL "http://freedesktop.org/wiki/Software/systemd/"
-   DESCRIPTION "System and Service Manager")
+        URL "http://freedesktop.org/wiki/Software/systemd/"
+        DESCRIPTION "System and Service Manager")
 
 find_package(PkgConfig)
 pkg_check_modules(PC_SYSTEMD QUIET libsystemd)

@@ -1,13 +1,13 @@
+/* vim: set tabstop=2 expandtab: */
 #ifndef DEMONIZER_H
 #define DEMONIZER_H
+
 #include <signal.h>
 
-typedef enum _ST_OP_MODE
-{
+typedef enum _ST_OP_MODE {
     ST_FORKING,
     ST_NOTIFY
-}
-ST_OP_MODE;
+} ST_OP_MODE;
 
 typedef void (*ST_signal_hook)(void);
 

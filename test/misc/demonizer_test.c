@@ -12,8 +12,7 @@
 
 static int msg_type;
 
-void ST_logger_msg(char* msg, int type)
-{
+void ST_logger_msg(char *msg, int type) {
 
     msg_type = type;
 }
@@ -24,8 +23,7 @@ FILE *temp_file;
 
 static int bak_fd, new_fd;
 
-static void start_stdout_redir(void)
-{
+static void start_stdout_redir(void) {
     fflush(stdout);
     bak_fd = dup(1);
     new_fd = open(TMP_EXCHANGE_FILE, O_WRONLY);
@@ -33,82 +31,70 @@ static void start_stdout_redir(void)
     close(new_fd);
 }
 
-static void stop_stdout_redir(void){
+static void stop_stdout_redir(void) {
     fflush(stdout);
     dup2(bak_fd, 1);
     close(bak_fd);
 }
 
-int init_suite(void)
-{
-    if (NULL == (temp_file = fopen(TMP_EXCHANGE_FILE, "w+")))
-    {
+int init_suite(void) {
+    if (NULL == (temp_file = fopen(TMP_EXCHANGE_FILE, "w+"))) {
         return -1;
-    }
-    else
-    {
+    } else {
         return 0;
     }
 }
 
-int clean_suite(void)
-{
-   if (0 != fclose(temp_file)) {
-      return -1;
-   }
-   else {
-      unlink(TMP_EXCHANGE_FILE);
-      return 0;
-   }
+int clean_suite(void) {
+    if (0 != fclose(temp_file)) {
+        return -1;
+    } else {
+        unlink(TMP_EXCHANGE_FILE);
+        return 0;
+    }
 }
-
 
 
 void
 test_wo_init_demonize_log_error
-(void)
-{
+        (void) {
     ST_demonize();
     CU_ASSERT(ST_MSG_ERROR == msg_type);
 }
 
-int main()
-{
+int main() {
 
-    if (CUE_SUCCESS != CU_initialize_registry())
-    {
+    if (CUE_SUCCESS != CU_initialize_registry()) {
         return CU_get_error();
     }
 
     CU_pSuite suite_handler = CU_add_suite(
-        "Demonizer Suite",
-        init_suite,
-        clean_suite
+            "Demonizer Suite",
+            init_suite,
+            clean_suite
     );
 
-    if (NULL == suite_handler)
-    {
+    if (NULL == suite_handler) {
         CU_cleanup_registry();
         return CU_get_error();
     }
 
-   if( (NULL == CU_add_test(
+    if ((NULL == CU_add_test(
             suite_handler,
             "test_wo_init_demonize_log_error",
-             test_wo_init_demonize_log_error)
-        )
-   )
-   {
-      CU_cleanup_registry();
-      return CU_get_error();
-   }
+            test_wo_init_demonize_log_error)
+    )
+            ) {
+        CU_cleanup_registry();
+        return CU_get_error();
+    }
 
 
-   CU_basic_set_mode(CU_BRM_VERBOSE);
-   CU_basic_run_tests();
+    CU_basic_set_mode(CU_BRM_VERBOSE);
+    CU_basic_run_tests();
 
-   int exit_code = CU_get_number_of_tests_failed();
+    int exit_code = CU_get_number_of_tests_failed();
 
-   CU_cleanup_registry();
-   return exit_code + CU_get_error();
+    CU_cleanup_registry();
+    return exit_code + CU_get_error();
 }

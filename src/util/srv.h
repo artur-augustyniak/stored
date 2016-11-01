@@ -1,10 +1,10 @@
 /* vim: set tabstop=2 expandtab: */
 #ifndef SRV_H
 #define SRV_H
+
 #include "configure.h"
 
-typedef struct _SRV_BUFF
-{
+typedef struct _SRV_BUFF {
     int size;
     const char *data;
     pthread_mutex_t mutex;
