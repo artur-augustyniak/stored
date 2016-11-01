@@ -49,9 +49,9 @@ int main(void) {
     json_append_element(triples, json_decode("{\"a\": 5, \"c\": 13}"));
     json_append_element(triples, json_decode("{\"b\": 24, \"c\": 25}"));
 
-//        JsonNode *triple;
-//        json_foreach(triple, triples)
-//                solve_pythagorean(triple);
+        JsonNode *triple;
+        json_foreach(triple, triples)
+                solve_pythagorean(triple);
 
     char *tmp = json_stringify(triples, "\t");
     puts(tmp);

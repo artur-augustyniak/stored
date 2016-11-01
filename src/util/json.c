@@ -21,9 +21,8 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-
 #include "json.h"
-
+#include "common.h"
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -61,12 +60,14 @@ static void sb_init(SB *sb) {
 }
 
 /* sb and need may be evaluated multiple times. */
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #define sb_need(sb, need) do {                  \
         if ((sb)->end - (sb)->cur < (need))     \
             sb_grow(sb, need);                  \
     } while (0)
-
+#pragma GCC diagnostic pop
 static void sb_grow(SB *sb, int need) {
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     size_t length = sb->cur - sb->start;
     size_t alloc = sb->end - sb->start;
 
@@ -79,6 +80,7 @@ static void sb_grow(SB *sb, int need) {
         out_of_memory();
     sb->cur = sb->start + length;
     sb->end = sb->start + alloc;
+#pragma GCC diagnostic pop
 }
 
 static void sb_put(SB *sb, const char *bytes, int count) {
@@ -98,13 +100,17 @@ static void sb_puts(SB *sb, const char *str) {
 }
 
 static char *sb_finish(SB *sb) {
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     *sb->cur = 0;
     assert(sb->start <= sb->cur && strlen(sb->start) == (size_t)(sb->cur - sb->start));
     return sb->start;
+#pragma GCC diagnostic pop
 }
 
 static void sb_free(SB *sb) {
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     free(sb->start);
+#pragma GCC diagnostic pop
 }
 
 /*
@@ -765,6 +771,7 @@ static bool parse_object(const char **sp, JsonNode **out) {
 }
 
 bool parse_string(const char **sp, char **out) {
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     const char *s = *sp;
     SB sb;
     char throwaway_buffer[4];
@@ -875,6 +882,7 @@ bool parse_string(const char **sp, char **out) {
     if (out)
         sb_free(&sb);
     return false;
+#pragma GCC diagnostic pop
 }
 
 /*

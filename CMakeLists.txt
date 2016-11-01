@@ -52,7 +52,7 @@ set_target_properties(stored PROPERTIES COMPILE_FLAGS ${GCC_COMPILE_FLAGS} LINK_
 
 # TESTING [make test || ctest]
 enable_testing()
-set(JSON_TEST test/misc/json_test.c src/util/json.c)
+set(JSON_TEST test/misc/json_test.c src/util/json.c src/util/common.c )
 add_executable(json_test ${JSON_TEST})
 set_target_properties(json_test PROPERTIES COMPILE_FLAGS ${TEST_GCC_COMPILE_FLAGS} LINK_FLAGS ${TEST_GCC_LINK_FLAGS})
 
