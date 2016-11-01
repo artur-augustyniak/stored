@@ -59,18 +59,18 @@ set_target_properties(json_test PROPERTIES COMPILE_FLAGS ${TEST_GCC_COMPILE_FLAG
 add_test(NAME DummyTest COMMAND ./test/scripts/dummy.sh 0)
 add_test(NAME JsonTest COMMAND ./build/json_test)
 
-# PHONY TARGET
+# PHONY TARGETS
+add_custom_target(uninstall COMMAND xargs rm < ./install_manifest.txt)
 add_custom_target(valgrind COMMAND ./test/scripts/memory_leaks.sh)
 
 # INSTALL
-# xargs rm < install_manifest.txt
 # $ cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr . && make all install
 # Would configure the project, build all targets and install to the /usr prefix.
 # The type (PATH) is not strictly necessary,
 # but would cause the Qt based cmake-gui to present the directory chooser dialog.
-install(TARGETS stored DESTINATION sbin COMPONENT binaries)
-install(FILES etc/stored.cfg DESTINATION etc COMPONENT config)
-install(FILES man/stored.8 DESTINATION usr/share/man/man8/)
+install(TARGETS stored DESTINATION usr/sbin COMPONENT binaries)
+install(FILES etc/stored.cfg DESTINATION etc/stored COMPONENT config)
+install(FILES man/stored.8 DESTINATION usr/share/man/man8)
 
 # if(USE_SYSTEMD)
 find_package(PkgConfig REQUIRED)
@@ -79,11 +79,27 @@ pkg_check_modules(SYSTEMD "libsystemd-login libsystemd-daemon" REQUIRED)
 # find systemd unit dir
 execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
 string(REGEX REPLACE "[ \t\n]+" \; SYSTEMD_SYSTEM_UNIT_DIR "${SYSTEMD_SYSTEM_UNIT_DIR}")
-install(FILES systemd/stored.service DESTINATION ${SYSTEMD_SYSTEM_UNIT_DIR})
+install(FILES systemd/stored.service DESTINATION usr/lib/systemd/system)
 # endif(USE_SYSTEMD)
 
 
 # PACKAGING
+##set(CPACK_SET_DESTDIR true)
+##set(CPACK_INSTALL_PREFIX /)
+#set(CPACK_PACKAGE_VERSION ${VERSION})
+#set(CPACK_GENERATOR "RPM")
+#set(CPACK_PACKAGE_NAME "my_project")
+#set(CPACK_PACKAGE_RELEASE 1)
+#set(CPACK_PACKAGE_CONTACT "John Explainer")
+#set(CPACK_PACKAGE_VENDOR "My Company")
+#set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+#set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
+#include(CPack)
+
+
+
+set(CPACK_SET_DESTDIR true)
+set(CPACK_INSTALL_PREFIX /)
 SET(CPACK_GENERATOR "DEB")
 SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Artur Augustyniak <artur@aaugustyniak.pl>")
 set(CPACK_PACKAGE_VERSION_MAJOR "0")

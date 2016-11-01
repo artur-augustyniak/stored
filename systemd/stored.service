@@ -4,7 +4,7 @@ Documentation=https://aaugustyniak.pl/stored
 
 [Service]
 Type=notify
-ExecStart=/sbin/stored -f /etc/stored.cfg
+ExecStart=/usr/sbin/stored -f /etc/stored/stored.cfg
 
 [Install]
 WantedBy=multi-user.target
