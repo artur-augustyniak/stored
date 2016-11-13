@@ -32,7 +32,7 @@ endif (NOT CMAKE_BUILD_TYPE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 # Set the compiler and linker flags
-set(GCC_COMPILE_FLAGS "-std=gnu11 -Wall -pedantic")
+set(GCC_COMPILE_FLAGS "-std=gnu11 -Wall -pedantic -fstack-protector-all -D_FORTIFY_SOURCE=2")
 set(GCC_LINK_FLAGS "-lsystemd -lconfig -pthread")
 set(TEST_GCC_COMPILE_FLAGS "-std=gnu11 -Wall -pedantic -g")
 set(TEST_GCC_LINK_FLAGS "-pthread -lm -lconfig")
