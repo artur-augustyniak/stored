@@ -2,7 +2,7 @@
 #include<stdio.h>
 #include <stdlib.h>
 #include<pthread.h>
-#include "logger.h"
+#include "../../src/util/logger.h"
 
 #define THREAD_ITER 100
 #define NUM_THREADS 20
@@ -12,12 +12,8 @@ void *inc_interval(void *p) {
     for (i = 0; i < THREAD_ITER; i++) {
         printf("################ ENTRY ################\n");
         ST_logger_msg("logger test", ST_MSG_WARN);
-//        ST_check_mtab(entries);
-//        ST_lock(&entries->mutex);
-//        pthread_yield();
-//        printf("%s\n", entries->textural);
-//        ST_unlock(&entries->mutex);
     }
+    return NULL;
 }
 
 /*  gcc -g -lconfig -lpthread logger_test.c logger.c sds.c common.c */

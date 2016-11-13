@@ -2,9 +2,10 @@
 #include<stdio.h>
 #include <stdlib.h>
 #include<pthread.h>
-#include "util/configure.h"
-#include "util/logger.h"
-#include "mtab_checker.h"
+#include "../../src/util/common.h"
+#include "../../src/util/configure.h"
+#include "../../src/util/logger.h"
+#include "../../src/mtab_checker.h"
 
 #define THREAD_ITER 1000
 #define NUM_THREADS 20
@@ -18,17 +19,18 @@ void *inc_interval(void *p) {
         printf("################ ENTRY ################\n");
         ST_check_mtab(entries);
         ST_lock(&entries->mutex);
-        pthread_yield();
+//        pthread_yield();
         printf("%s\n", entries->textural);
         ST_unlock(&entries->mutex);
     }
+    return NULL;
 }
 
 /*  gcc -g -lconfig -lpthread mtab_checker_test.c mtab_checker.c util/configure.c util/logger.c util/sds.c util/common.c util/json.c */
 int main(void) {
 
     ST_logger_init("test", ST_STDOUT);
-    core_config = ST_new_config("../etc/stored.cfg");
+    core_config = ST_new_config("./etc/stored.cfg");
     entries = ST_init_mtab_checker(core_config);
     pthread_t threads[NUM_THREADS];
     int rc;

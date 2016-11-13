@@ -2,9 +2,9 @@
 #include<stdio.h>
 #include <stdlib.h>
 #include<pthread.h>
-#include "common.h"
-#include "configure.h"
-#include "srv.h"
+#include "../../src/util/common.h"
+#include "../../src/util/configure.h"
+#include "../../src/util/srv.h"
 
 #define THREAD_ITER 10000
 #define NUM_THREADS 20
@@ -20,17 +20,18 @@ void *inc_interval(void *p) {
     for (i = 0; i < THREAD_ITER; i++) {
         ST_lock(&srv_buff->mutex);
         sprintf(str, "<b>%d</b>", counter++);
-        pthread_yield();
+//        pthread_yield();
         srv_buff->data = str;
         ST_unlock(&srv_buff->mutex);
 
     }
+    return NULL;
 }
 
 /* gcc -g -lconfig -lpthread srv_test.c srv.c configure.c common.c */
 int main(void) {
 
-    core_config = ST_new_config("../../etc/stored.cfg");
+    core_config = ST_new_config("./etc/stored.cfg");
     srv_buff = ST_init_srv(core_config);
     ST_start_srv(srv_buff);
 
@@ -50,12 +51,10 @@ int main(void) {
     for (i = 0; i < NUM_THREADS; i++) {
         pthread_join(threads[i], NULL);
     }
-    sleep(20);
+
     core_config->http_port = 1532;
     ST_restart_srv(srv_buff);
 
-
-    sleep(20);
     ST_stop_srv(srv_buff);
     ST_destroy_srv(srv_buff);
     ST_destroy_config(core_config);

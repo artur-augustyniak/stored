@@ -35,7 +35,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 set(GCC_COMPILE_FLAGS "-std=gnu11 -Wall -pedantic")
 set(GCC_LINK_FLAGS "-lsystemd -lconfig -pthread")
 set(TEST_GCC_COMPILE_FLAGS "-std=gnu11 -Wall -pedantic -g")
-set(TEST_GCC_LINK_FLAGS "-pthread -lm")
+set(TEST_GCC_LINK_FLAGS "-pthread -lm -lconfig")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
 
@@ -71,17 +71,54 @@ set_target_properties(stored PROPERTIES COMPILE_FLAGS ${GCC_COMPILE_FLAGS} LINK_
 #####################
 # make test || ctest
 enable_testing()
+
 set(JSON_TEST test/misc/json_test.c src/util/json.c src/util/common.c )
 add_executable(json_test ${JSON_TEST})
 set_target_properties(json_test PROPERTIES COMPILE_FLAGS ${TEST_GCC_COMPILE_FLAGS} LINK_FLAGS ${TEST_GCC_LINK_FLAGS})
-add_test(NAME DummyTest COMMAND ./test/scripts/dummy.sh 0)
 add_test(NAME JsonTest COMMAND ./build/json_test)
+
+set(CONFIGURE_TEST test/misc/configure_test.c src/util/configure.c src/util/common.c )
+add_executable(configure_test ${CONFIGURE_TEST})
+set_target_properties(configure_test PROPERTIES COMPILE_FLAGS ${TEST_GCC_COMPILE_FLAGS} LINK_FLAGS ${TEST_GCC_LINK_FLAGS})
+add_test(NAME ConfigureTest COMMAND ./build/configure_test)
+
+set(LOGGER_TEST test/misc/logger_test.c src/util/logger.c src/util/sds.c src/util/common.c)
+add_executable(logger_test ${LOGGER_TEST})
+set_target_properties(logger_test PROPERTIES COMPILE_FLAGS ${TEST_GCC_COMPILE_FLAGS} LINK_FLAGS ${TEST_GCC_LINK_FLAGS})
+add_test(NAME LoggerTest COMMAND ./build/logger_test)
+
+set(MTAB_TEST
+    test/misc/mtab_checker_test.c
+    src/mtab_checker.c
+    src/util/configure.c
+    src/util/logger.c
+    src/util/sds.c
+    src/util/json.c
+    src/util/common.c
+)
+add_executable(mtab_test ${MTAB_TEST})
+set_target_properties(mtab_test PROPERTIES COMPILE_FLAGS ${TEST_GCC_COMPILE_FLAGS} LINK_FLAGS ${TEST_GCC_LINK_FLAGS})
+add_test(NAME MtabTest COMMAND ./build/mtab_test)
+
+set(SRV_TEST
+    test/misc/srv_test.c
+    src/util/srv.c
+    src/util/configure.c
+    src/util/common.c
+)
+add_executable(srv_test ${SRV_TEST})
+set_target_properties(srv_test PROPERTIES COMPILE_FLAGS ${TEST_GCC_COMPILE_FLAGS} LINK_FLAGS ${TEST_GCC_LINK_FLAGS})
+add_test(NAME SrvTest COMMAND ./build/srv_test)
 
 #####################
 ####### PHONY #######
 #####################
 add_custom_target(uninstall COMMAND xargs rm < ./install_manifest.txt)
-add_custom_target(valgrind COMMAND ./test/scripts/memory_leaks.sh)
+
+add_custom_target(valgrind_concurrency COMMAND ./test/scripts/concurrency_bugs.sh)
+add_custom_target(valgrind_memory COMMAND ./test/scripts/memory_leaks.sh)
+add_custom_target(stress COMMAND ./test/scripts/stress_test.sh 40 0)
+add_custom_target(flawfind COMMAND ./test/scripts/flawfind.sh)
 
 #####################
 ###### INSTALL ######

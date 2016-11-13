@@ -2,8 +2,8 @@
 #include<stdio.h>
 #include <stdlib.h>
 #include<pthread.h>
-#include "common.h"
-#include "configure.h"
+#include "../../src/util/common.h"
+#include "../../src/util/configure.h"
 
 #define THREAD_ITER 10000
 #define NUM_THREADS 20
@@ -17,12 +17,13 @@ void *inc_interval(void *p) {
         core_config->interval++;
         ST_unlock(&core_config->mutex);
     }
+    return NULL;
 }
 
 /* gcc -g -lconfig -lpthread configure_test.c configure.c common.c */
 int main(void) {
 
-    core_config = ST_new_config("../../etc/stored.cfg");
+    core_config = ST_new_config("./etc/stored.cfg");
 
     pthread_t threads[NUM_THREADS];
     int rc;
@@ -41,7 +42,7 @@ int main(void) {
         pthread_join(threads[i], NULL);
     }
     ST_print_config(core_config);
-    sleep(15);
+//    sleep(15);
     ST_reload_config(core_config);
     ST_print_config(core_config);
 
