@@ -84,35 +84,48 @@ install(FILES systemd/stored.service DESTINATION usr/lib/systemd/system)
 
 
 # PACKAGING
-##set(CPACK_SET_DESTDIR true)
-##set(CPACK_INSTALL_PREFIX /)
-#set(CPACK_PACKAGE_VERSION ${VERSION})
-#set(CPACK_GENERATOR "RPM")
-#set(CPACK_PACKAGE_NAME "my_project")
-#set(CPACK_PACKAGE_RELEASE 1)
-#set(CPACK_PACKAGE_CONTACT "John Explainer")
-#set(CPACK_PACKAGE_VENDOR "My Company")
-#set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-#set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
-#include(CPack)
-
-
-
 set(CPACK_SET_DESTDIR true)
 set(CPACK_INSTALL_PREFIX /)
-SET(CPACK_GENERATOR "DEB")
-SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Artur Augustyniak <artur@aaugustyniak.pl>")
-set(CPACK_PACKAGE_VERSION_MAJOR "0")
-set(CPACK_PACKAGE_VERSION_MINOR "2")
-set(CPACK_PACKAGE_VERSION_PATCH "0")
-# set(CPACK_DEBIAN_PACKAGE_DEPENDS "cssrobopec,libqt4-xml,libqt4-network,libqtgui4,treeupdatablereeti")
-set(CPACK_PACKAGE_DESCRIPTION "Mount point monitoring daemon.")
-set(CPACK_PACKAGE_CONTACT "Artur Augustyniak artur@aaugustyniak.pl")
-set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/Debian/postinst")
-# if(ARCHITECTURE MATCHES ".*x86_64.*")
-set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
-# else()
-#set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
-# endif()
+set(CPACK_PACKAGE_VERSION ${VERSION})
+set(CPACK_GENERATOR "RPM")
+set(CPACK_PACKAGE_NAME "my_project")
+set(CPACK_PACKAGE_RELEASE 1)
+set(CPACK_PACKAGE_CONTACT "John Explainer")
+set(CPACK_PACKAGE_VENDOR "My Company")
+set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
+set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST
+    /usr
+    /usr/bin
+    /usr/sbin
+    /usr/share
+    /usr/share/man
+    /usr/share/man/man8
+    /usr/lib
+    /usr/lib/systemd
+    /usr/lib/systemd/system
+    /etc
+)
 
 include(CPack)
+
+
+
+# set(CPACK_SET_DESTDIR true)
+# set(CPACK_INSTALL_PREFIX /)
+# SET(CPACK_GENERATOR "DEB")
+# SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Artur Augustyniak <artur@aaugustyniak.pl>")
+# set(CPACK_PACKAGE_VERSION_MAJOR "0")
+# set(CPACK_PACKAGE_VERSION_MINOR "2")
+# set(CPACK_PACKAGE_VERSION_PATCH "0")
+# # set(CPACK_DEBIAN_PACKAGE_DEPENDS "cssrobopec,libqt4-xml,libqt4-network,libqtgui4,treeupdatablereeti")
+# set(CPACK_PACKAGE_DESCRIPTION "Mount point monitoring daemon.")
+# set(CPACK_PACKAGE_CONTACT "Artur Augustyniak artur@aaugustyniak.pl")
+# set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/Debian/postinst")
+# # if(ARCHITECTURE MATCHES ".*x86_64.*")
+# set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+# # else()
+# #set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
+# # endif()
+#
+# include(CPack)
