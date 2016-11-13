@@ -1,3 +1,6 @@
+#####################
+######## INIT #######
+#####################
 cmake_minimum_required(VERSION 2.8.11)
 project(stored)
 set (stored_VERSION_MAJOR 0)
@@ -56,24 +59,33 @@ set(CPACK_OUTPUT_FILE_PREFIX build)
 file(GLOB_RECURSE SOURCES "src/*.c")
 file(GLOB_RECURSE TEST_SOURCES "test/misc/*.c")
 
-# BUILD [make]
+#####################
+####### BUILD #######
+#####################
+# make
 add_executable(stored ${SOURCES})
 set_target_properties(stored PROPERTIES COMPILE_FLAGS ${GCC_COMPILE_FLAGS} LINK_FLAGS ${GCC_LINK_FLAGS})
 
-# TESTING [make test || ctest]
+#####################
+###### TESTING ######
+#####################
+# make test || ctest
 enable_testing()
 set(JSON_TEST test/misc/json_test.c src/util/json.c src/util/common.c )
 add_executable(json_test ${JSON_TEST})
 set_target_properties(json_test PROPERTIES COMPILE_FLAGS ${TEST_GCC_COMPILE_FLAGS} LINK_FLAGS ${TEST_GCC_LINK_FLAGS})
-
 add_test(NAME DummyTest COMMAND ./test/scripts/dummy.sh 0)
 add_test(NAME JsonTest COMMAND ./build/json_test)
 
-# PHONY TARGETS
+#####################
+####### PHONY #######
+#####################
 add_custom_target(uninstall COMMAND xargs rm < ./install_manifest.txt)
 add_custom_target(valgrind COMMAND ./test/scripts/memory_leaks.sh)
 
-# INSTALL
+#####################
+###### INSTALL ######
+#####################
 # $ cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr . && make all install
 # Would configure the project, build all targets and install to the /usr prefix.
 # The type (PATH) is not strictly necessary,
@@ -81,17 +93,11 @@ add_custom_target(valgrind COMMAND ./test/scripts/memory_leaks.sh)
 install(TARGETS stored DESTINATION usr/sbin COMPONENT binaries)
 install(FILES etc/stored.cfg DESTINATION etc/stored COMPONENT config)
 install(FILES man/stored.8 DESTINATION usr/share/man/man8)
-
-# if(USE_SYSTEMD)
 find_package(PkgConfig REQUIRED)
-# check systemd
 pkg_check_modules(SYSTEMD "libsystemd-login libsystemd-daemon" REQUIRED)
-# find systemd unit dir
 execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
 string(REGEX REPLACE "[ \t\n]+" \; SYSTEMD_SYSTEM_UNIT_DIR "${SYSTEMD_SYSTEM_UNIT_DIR}")
 install(FILES systemd/stored.service DESTINATION usr/lib/systemd/system)
-# endif(USE_SYSTEMD)
-
 
 #####################
 ##### PACKAGING #####
