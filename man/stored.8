@@ -1,33 +1,53 @@
-.\" manual page [] for stored version 0.1
-.Dd August 15, 2016
-.Dt STORED 8
-.Os STORED 0.1
-.Sh NAME
-.Nm stored
-.Nd stored daemon
-.Sh SYNOPSIS
-.Nm
-.Op Fl V | -blah
-.Pp
-.Sh DESCRIPTION
-.Pp
-Lorem
-.Nm
-Lorem ipsum.
-.Nm
-Lorem ipsum.
-.Sh SEE ALSO
-.Pp
-.Xr stored 8 .
-.Pp
-.Sh AUTHORS
-.Pp
-.Ss This page
-.An Artur Augustyniak(current)
-.Pp
-.Ss Software
-.An Artur Augustyniak (Code Maintainer)
-.Pp
-.Ss Contributors
-.Pp
-Blah!
+.\" 2016 Artur Augustyniak <artur@aaugustyniak.pl>
+.\" Distributed under the the MIT License (MIT)
+.\"
+.TH STORED 8 "13 Nov 2016" "Version 0.2.0" "Linux System Administration"
+.SH NAME
+stored \- mount point monitoring daemon
+.SH SYNOPSIS
+.B stored
+.RB [ " \-f "
+.I config file
+]
+.LP
+.SH DESCRIPTION
+.B Stored
+is a system utility providing support for logging the amount of disk space available on the file system.
+Support of both internet and
+syslog support both local logging and remote queries.
+
+The main configuration file
+.I /etc/stored.cfg
+or an alternative file, given with the
+.B "\-f"
+option, is read at startup. Configuration file is in libconfig format. If an error occurs during parsing startup process is interrupted.
+
+.LP
+.SH OPTIONS
+.TP
+.BI "\-f " "config file"
+Specify an configuration.
+.TP
+.LP
+.SH SIGNALS
+.B Stored
+reacts to a HUP signal by reloading its configuration. You may easily send a signal to
+.B stored
+using the following:
+.IP
+.nf
+kill -SIGINT `ps aux | grep "stored" | awk '{print $2}'`
+or:
+.nf
+systemctl kill -s SIGHUP stored.service
+
+.SH FILES
+.TP
+.I /etc/stored.cfg
+Configuration file for
+.BR stored .
+Configuration file contains two sections, core and server.
+Each argument is required. Right now there are no optional arguments.
+
+.SH AUTHORS
+Artur Augustyniak <artur@aaugustyniak.pl>
