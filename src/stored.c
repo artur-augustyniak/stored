@@ -11,6 +11,7 @@
 #include "util/srv.h"
 #include "mtab_checker.h"
 #include "mtab_check_loop.h"
+#include "stored_config.h"
 
 
 static ST_CONFIG core_config = NULL;
@@ -36,7 +37,7 @@ int main(int argc, char *argv[]) {
             case 'f':
                 conf_path = strdup(optarg);
                 if (conf_path) {
-                    ST_logger_init(ST_NAME, ST_STDOUT);
+                    ST_logger_init(PROJECT_NAME, ST_STDOUT);
                     ST_init_demonizer(ST_NOTIFY);
 
                     ST_add_signal_hook(SIGINT, &stop);
@@ -69,6 +70,6 @@ int main(int argc, char *argv[]) {
                 break;
         }
     }
-    fprintf(stderr, "Usage: %s [-f <path/config.cfg>]\n", argv[0]);
+    fprintf(stderr, "Usage: %s [-f <path/config.cfg>]\n", PROJECT_NAME);
     return EXIT_SUCCESS;
 }

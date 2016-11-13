@@ -1,9 +1,19 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(stored)
+set (stored_VERSION_MAJOR 0)
+set (stored_VERSION_MINOR 2)
+set (stored_VERSION_PATCH 0)
 
-set(ST_NAME ${PROJECT_NAME})
-set(ST_VERSION 0.2)
-add_definitions(-DST_NAME="${ST_NAME} ${ST_VERSION}")
+# configure a header file to pass some of the CMake settings
+# to the source code
+configure_file (
+  "${PROJECT_SOURCE_DIR}/src/stored_config.h.in"
+  "${PROJECT_BINARY_DIR}/src/stored_config.h"
+  )
+
+# add the binary tree to the search path for include files
+# so that we will find TutorialConfig.h
+include_directories("${PROJECT_BINARY_DIR}")
 
 # cmake -D CMAKE_BUILD_TYPE=Debug .
 # cmake .
@@ -83,17 +93,21 @@ install(FILES systemd/stored.service DESTINATION usr/lib/systemd/system)
 # endif(USE_SYSTEMD)
 
 
-# PACKAGING
-set(CPACK_SET_DESTDIR true)
+#####################
+##### PACKAGING #####
+#####################
+set(CPACK_GENERATOR "RPM;DEB")
 set(CPACK_INSTALL_PREFIX /)
+# set(CPACK_SET_DESTDIR true)
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 set(CPACK_PACKAGE_VERSION ${VERSION})
-set(CPACK_GENERATOR "RPM")
-set(CPACK_PACKAGE_NAME "my_project")
-set(CPACK_PACKAGE_RELEASE 1)
-set(CPACK_PACKAGE_CONTACT "John Explainer")
-set(CPACK_PACKAGE_VENDOR "My Company")
+set(CPACK_PACKAGE_DESCRIPTION "Mount point monitoring daemon.")
+set(CPACK_PACKAGE_CONTACT "Artur Augustyniak artur@aaugustyniak.pl")
 set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
+set(CPACK_PACKAGE_VERSION_MAJOR ${stored_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${stored_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${stored_VERSION_PATCH})
+#RPM SPECIFIC
 set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST
     /usr
     /usr/bin
@@ -106,26 +120,8 @@ set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST
     /usr/lib/systemd/system
     /etc
 )
-
+#DEB SPECIFIC
+SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Artur Augustyniak <artur@aaugustyniak.pl>")
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/Debian/postinst")
+set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
 include(CPack)
-
-
-
-# set(CPACK_SET_DESTDIR true)
-# set(CPACK_INSTALL_PREFIX /)
-# SET(CPACK_GENERATOR "DEB")
-# SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Artur Augustyniak <artur@aaugustyniak.pl>")
-# set(CPACK_PACKAGE_VERSION_MAJOR "0")
-# set(CPACK_PACKAGE_VERSION_MINOR "2")
-# set(CPACK_PACKAGE_VERSION_PATCH "0")
-# # set(CPACK_DEBIAN_PACKAGE_DEPENDS "cssrobopec,libqt4-xml,libqt4-network,libqtgui4,treeupdatablereeti")
-# set(CPACK_PACKAGE_DESCRIPTION "Mount point monitoring daemon.")
-# set(CPACK_PACKAGE_CONTACT "Artur Augustyniak artur@aaugustyniak.pl")
-# set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/Debian/postinst")
-# # if(ARCHITECTURE MATCHES ".*x86_64.*")
-# set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
-# # else()
-# #set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
-# # endif()
-#
-# include(CPack)

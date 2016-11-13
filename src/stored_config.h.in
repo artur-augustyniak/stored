@@ -1,0 +1,5 @@
+// the configured options and settings for stored
+#define stored_VERSION_MAJOR "@stored_VERSION_MAJOR@"
+#define stored_VERSION_MINOR "@stored_VERSION_MINOR@"
+#define stored_VERSION_PATCH "@stored_VERSION_PATCH@"
+#define PROJECT_NAME "@PROJECT_NAME@"

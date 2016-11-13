@@ -63,6 +63,7 @@ Makefile.in
 
 .idea
 build/*
+src/stored_config.h
 !build/.gitkeep
 Testing/*
 CPackConfig.cmake
