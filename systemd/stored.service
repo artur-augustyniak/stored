@@ -1,6 +1,6 @@
 [Unit]
 Description=Stored Daemon
-Documentation=https://aaugustyniak.pl/stored
+Documentation=https://github.com/artur-augustyniak/stored
 
 [Service]
 Type=notify
