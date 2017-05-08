@@ -45,6 +45,9 @@ $ make flawfind
 ```
 
 ## Todo
+- asan 
+  `gcc -lsystemd -lconfig -pthread -std=gnu11 -fsanitize=address stored.c mtab_checker.c mtab_check_loop.c util/common.c util/configure.c util/demonizer.c util/json.c util/logger.c util/sds.c util/srv.c` 
+
 - funkd compilation without systemd devlibs
 - AFL fuzz
 - socket activation systemd unit
