@@ -64,8 +64,9 @@ file(GLOB_RECURSE TEST_SOURCES "test/misc/*.c")
 #####################
 # make
 add_executable(stored ${SOURCES})
-set_target_properties(stored PROPERTIES COMPILE_FLAGS ${GCC_COMPILE_FLAGS} LINK_FLAGS ${GCC_LINK_FLAGS})
 
+set_target_properties(stored PROPERTIES COMPILE_FLAGS ${GCC_COMPILE_FLAGS} LINK_FLAGS ${GCC_LINK_FLAGS})
+target_link_libraries(stored -lconfig -lsystemd)
 #####################
 ###### TESTING ######
 #####################
@@ -75,10 +76,12 @@ enable_testing()
 set(JSON_TEST test/misc/json_test.c src/util/json.c src/util/common.c )
 add_executable(json_test ${JSON_TEST})
 set_target_properties(json_test PROPERTIES COMPILE_FLAGS ${TEST_GCC_COMPILE_FLAGS} LINK_FLAGS ${TEST_GCC_LINK_FLAGS})
+target_link_libraries(json_test -lconfig -lm)
 add_test(NAME JsonTest COMMAND ./build/json_test)
 
 set(CONFIGURE_TEST test/misc/configure_test.c src/util/configure.c src/util/common.c )
 add_executable(configure_test ${CONFIGURE_TEST})
+target_link_libraries(configure_test -lconfig)
 set_target_properties(configure_test PROPERTIES COMPILE_FLAGS ${TEST_GCC_COMPILE_FLAGS} LINK_FLAGS ${TEST_GCC_LINK_FLAGS})
 add_test(NAME ConfigureTest COMMAND ./build/configure_test)
 
@@ -97,6 +100,7 @@ set(MTAB_TEST
     src/util/common.c
 )
 add_executable(mtab_test ${MTAB_TEST})
+target_link_libraries(mtab_test -lconfig)
 set_target_properties(mtab_test PROPERTIES COMPILE_FLAGS ${TEST_GCC_COMPILE_FLAGS} LINK_FLAGS ${TEST_GCC_LINK_FLAGS})
 add_test(NAME MtabTest COMMAND ./build/mtab_test)
 
@@ -107,6 +111,7 @@ set(SRV_TEST
     src/util/common.c
 )
 add_executable(srv_test ${SRV_TEST})
+target_link_libraries(srv_test -lconfig)
 set_target_properties(srv_test PROPERTIES COMPILE_FLAGS ${TEST_GCC_COMPILE_FLAGS} LINK_FLAGS ${TEST_GCC_LINK_FLAGS})
 add_test(NAME SrvTest COMMAND ./build/srv_test)
 
@@ -131,7 +136,7 @@ install(TARGETS stored DESTINATION usr/sbin COMPONENT binaries)
 install(FILES etc/stored.cfg DESTINATION etc/stored COMPONENT config)
 install(FILES man/stored.8 DESTINATION usr/share/man/man8)
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(SYSTEMD "libsystemd-login libsystemd-daemon" REQUIRED)
+#pkg_check_modules(SYSTEMD "libsystemd-login libsystemd-daemon" REQUIRED)
 execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
 string(REGEX REPLACE "[ \t\n]+" \; SYSTEMD_SYSTEM_UNIT_DIR "${SYSTEMD_SYSTEM_UNIT_DIR}")
 install(FILES systemd/stored.service DESTINATION usr/lib/systemd/system)
